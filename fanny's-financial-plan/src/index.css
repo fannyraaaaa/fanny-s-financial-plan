@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --palette-1: #F8E9E4; /* pale blush cream */
+    --palette-2: #F3AEC5; /* soft carnation pink */
+    --palette-3: #E07DA4; /* medium rose */
+    --palette-4: #CB497C; /* vibrant berry rose */
+    --palette-5: #A93361; /* deep raspberry */
+    --palette-6: #6D1B3E; /* rich plum wine */
+    --palette-7: #390F1E; /* dark espresso black-cherry */
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #FAF4F2;
+    color: #390F1E;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.font-serif-brand {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF4F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #F3AEC5;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #CB497C;
+}
+
+/* Glass & Card effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(243, 174, 197, 0.35);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+

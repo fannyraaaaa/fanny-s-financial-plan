@@ -1,0 +1,6 @@
+{
+  "name": "fanny's financial plan",
+  "description": "Aesthetic personal financial management app featuring expense & income tracking, multi-wallet management, transfers, month-end bank reconciliation, recurring transactions, wishli$t, and spreadsheet data export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
