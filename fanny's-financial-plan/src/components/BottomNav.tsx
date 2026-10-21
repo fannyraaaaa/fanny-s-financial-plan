@@ -34,7 +34,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'transactions', label: 'Transactions', icon: Receipt },
     { id: 'wallets', label: 'Wallets', icon: Wallet },
-    { id: 'goals', label: 'wishli$t', icon: Target },
+    { id: 'goals', label: 'wi$h li$t', icon: Target },
     { id: 'spreadsheet', label: 'Spreadsheet', icon: FileSpreadsheet },
   ];
 
