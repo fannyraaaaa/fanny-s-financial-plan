@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   TrendingUp,
   ArrowUpRight,
@@ -6,11 +6,9 @@ import {
   Plus,
   ArrowRightLeft,
   Scale,
-  Eye,
-  EyeOff,
   ChevronRight,
   CheckCircle2,
-  Calendar,
+  Lock,
 } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import { formatIDR, formatDateIndo, getTodayString } from '../utils/formatters';
@@ -37,14 +35,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     wallets,
     transactions,
     savingsGoals,
-    recurring,
     categories,
     totalNetWorth,
     monthlyIncome,
     monthlyExpense,
+    isUnlocked,
   } = useFinance();
-
-  const [showBalance, setShowBalance] = useState(true);
 
   const catMap = new Map(categories.map(c => [c.id, c]));
   const walletMap = new Map(wallets.map(w => [w.id, w]));
@@ -52,7 +48,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-5 pb-20">
-      {/* 1. HERO BALANCE CARD */}
+      {/* 1. HERO BALANCE CARD (PASSWORD PROTECTED - ONLY UNLOCKABLE VIA TOP PADLOCK) */}
       <div className="p-6 rounded-3xl bg-gradient-to-br from-[#6D1B3E] via-[#A93361] to-[#CB497C] text-white shadow-xl shadow-[#6D1B3E]/15 relative overflow-hidden">
         <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-white/10 blur-xl pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-36 h-36 rounded-full bg-[#390F1E]/20 blur-lg pointer-events-none" />
@@ -63,13 +59,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-xs uppercase font-medium tracking-wider text-[#F8E9E4]/80">
                 Total Net Worth
               </span>
-              <button
-                onClick={() => setShowBalance(!showBalance)}
-                className="text-[#F8E9E4]/80 hover:text-white transition-colors"
-                title={showBalance ? 'Hide Balance' : 'Show Balance'}
-              >
-                {showBalance ? <Eye size={15} /> : <EyeOff size={15} />}
-              </button>
+              {!isUnlocked && (
+                <span className="px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold text-white/90 flex items-center gap-1">
+                  <Lock size={10} />
+                  <span>Locked</span>
+                </span>
+              )}
             </div>
             <span className="text-[11px] text-[#F8E9E4]/90 bg-white/15 px-2.5 py-0.5 rounded-full backdrop-blur-xs font-mono">
               {formatDateIndo(today)}
@@ -77,13 +72,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif-brand tabular-nums">
-              {showBalance ? formatIDR(totalNetWorth) : '••••••••••••'}
-            </h1>
+            {isUnlocked ? (
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif-brand tabular-nums">
+                {formatIDR(totalNetWorth)}
+              </h1>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-3xl sm:text-4xl font-extrabold tracking-widest font-mono text-white/90">
+                  Rp ••••••••••
+                </span>
+              </div>
+            )}
             <p className="text-xs text-[#F8E9E4]/80 mt-1">
-              {wallets.length > 0
+              {isUnlocked
                 ? `From ${wallets.length} active wallets & accounts`
-                : 'Start by adding your first wallet or account'}
+                : 'Protected • Click the padlock at the top to unlock'}
             </p>
           </div>
 
@@ -96,7 +99,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div>
                 <span className="text-[10px] text-[#F8E9E4]/70 block">Monthly Income</span>
                 <span className="text-xs font-bold font-mono tabular-nums">
-                  {showBalance ? `+${formatIDR(monthlyIncome)}` : '••••••••'}
+                  {isUnlocked ? `+${formatIDR(monthlyIncome)}` : '••••••••'}
                 </span>
               </div>
             </div>
@@ -108,7 +111,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div>
                 <span className="text-[10px] text-[#F8E9E4]/70 block">Monthly Expense</span>
                 <span className="text-xs font-bold font-mono tabular-nums">
-                  {showBalance ? `-${formatIDR(monthlyExpense)}` : '••••••••'}
+                  {isUnlocked ? `-${formatIDR(monthlyExpense)}` : '••••••••'}
                 </span>
               </div>
             </div>
@@ -116,138 +119,126 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 2. MONTH-END RECONCILIATION BANNER */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-white border border-[#F3AEC5]/50 shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-[#6D1B3E] text-white flex items-center justify-center shrink-0">
-            <Scale size={18} />
-          </div>
-          <div>
-            <h3 className="text-xs sm:text-sm font-bold text-[#390F1E]">Month-End Balance Reconciliation</h3>
-          </div>
-        </div>
-
-        <button
-          onClick={() => onOpenReconciliation()}
-          className="px-3.5 py-2 text-xs font-bold text-white bg-[#CB497C] hover:bg-[#A93361] rounded-xl transition-all shadow-xs shrink-0"
-        >
-          Reconcile
-        </button>
-      </div>
-
-      {/* 3. QUICK ACTION BUTTONS */}
+      {/* 2. QUICK ACTION BUTTONS (NO PASSWORD REQUIRED) */}
       <div className="grid grid-cols-4 gap-2">
         <button
           onClick={() => onOpenTransaction('expense')}
-          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-[#CB497C] transition-all flex flex-col items-center gap-1 text-center group active:scale-[0.97]"
+          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-[#CB497C] hover:shadow-xs transition-all flex flex-col items-center gap-1.5 group text-center"
         >
-          <div className="w-10 h-10 rounded-xl bg-[#FAF4F2] group-hover:bg-[#CB497C] group-hover:text-white text-[#CB497C] flex items-center justify-center transition-colors">
-            <ArrowUpRight size={18} />
+          <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <TrendingDownIcon size={18} />
           </div>
-          <span className="text-[11px] font-bold text-[#390F1E] mt-0.5">Expense</span>
+          <span className="text-xs font-bold text-[#390F1E]">+ Expense</span>
         </button>
 
         <button
           onClick={() => onOpenTransaction('income')}
-          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-[#6D1B3E] transition-all flex flex-col items-center gap-1 text-center group active:scale-[0.97]"
+          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-emerald-400 hover:shadow-xs transition-all flex flex-col items-center gap-1.5 group text-center"
         >
-          <div className="w-10 h-10 rounded-xl bg-[#FAF4F2] group-hover:bg-[#6D1B3E] group-hover:text-white text-[#6D1B3E] flex items-center justify-center transition-colors">
-            <ArrowDownRight size={18} />
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <TrendingUp size={18} />
           </div>
-          <span className="text-[11px] font-bold text-[#390F1E] mt-0.5">Income</span>
+          <span className="text-xs font-bold text-[#390F1E]">+ Income</span>
         </button>
 
         <button
           onClick={onOpenTransfer}
-          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-[#A93361] transition-all flex flex-col items-center gap-1 text-center group active:scale-[0.97]"
+          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-blue-400 hover:shadow-xs transition-all flex flex-col items-center gap-1.5 group text-center"
         >
-          <div className="w-10 h-10 rounded-xl bg-[#FAF4F2] group-hover:bg-[#A93361] group-hover:text-white text-[#A93361] flex items-center justify-center transition-colors">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
             <ArrowRightLeft size={18} />
           </div>
-          <span className="text-[11px] font-bold text-[#390F1E] mt-0.5">Transfer</span>
+          <span className="text-xs font-bold text-[#390F1E]">Transfer</span>
         </button>
 
         <button
           onClick={() => onOpenReconciliation()}
-          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-[#6D1B3E] transition-all flex flex-col items-center gap-1 text-center group active:scale-[0.97]"
+          className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-[#CB497C] hover:shadow-xs transition-all flex flex-col items-center gap-1.5 group text-center"
         >
-          <div className="w-10 h-10 rounded-xl bg-[#FAF4F2] group-hover:bg-[#6D1B3E] group-hover:text-white text-[#6D1B3E] flex items-center justify-center transition-colors">
+          <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
             <Scale size={18} />
           </div>
-          <span className="text-[11px] font-bold text-[#390F1E] mt-0.5">Reconcile</span>
+          <span className="text-xs font-bold text-[#390F1E]">Reconcile</span>
         </button>
       </div>
 
-      {/* 4. WALLET CAROUSEL / GRID */}
+      {/* 3. WALLETS & ACCOUNTS OVERVIEW */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-[#390F1E] font-serif-brand">Wallets & Accounts</h2>
-            <p className="text-[11px] text-[#A93361]">All bank accounts, e-wallets & cash</p>
+            <p className="text-[11px] text-[#A93361]">Balances and payment methods</p>
           </div>
           <button
             onClick={() => onNavigateTab('wallets')}
             className="text-xs font-bold text-[#CB497C] hover:underline flex items-center gap-0.5"
           >
-            <span>View All</span>
+            <span>Manage All</span>
             <ChevronRight size={14} />
           </button>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {wallets.map(w => (
             <div
               key={w.id}
-              className="min-w-[210px] sm:min-w-[240px] p-4 rounded-2xl text-white shadow-sm flex flex-col justify-between shrink-0 snap-start relative overflow-hidden transition-transform hover:-translate-y-0.5"
-              style={{ backgroundColor: w.color }}
+              onClick={() => {
+                if (isUnlocked) {
+                  onNavigateTab('wallets');
+                }
+              }}
+              className="p-3.5 bg-white rounded-2xl border border-[#F8E9E4] shadow-2xs space-y-2 hover:border-[#F3AEC5]/70 transition-all cursor-pointer"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-semibold tracking-wider opacity-85 block">
-                    {w.typeLabel}
-                  </span>
-                  <h3 className="text-sm font-bold truncate max-w-[140px] mt-0.5">{w.name}</h3>
-                </div>
-                <div className="w-7 h-7 rounded-xl bg-white/20 flex items-center justify-center">
+              <div className="flex items-center justify-between">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-2xs"
+                  style={{ backgroundColor: w.color }}
+                >
                   <IconRenderer name={w.icon} size={15} />
                 </div>
+                {w.accountNumber && (
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    ••••{w.accountNumber.slice(-4)}
+                  </span>
+                )}
               </div>
 
-              <div className="mt-4 pt-2 border-t border-white/20">
-                <span className="text-[10px] opacity-75 block">Balance</span>
-                <p className="text-base font-extrabold font-mono tabular-nums">
-                  {showBalance ? formatIDR(w.balance) : '••••••••'}
-                </p>
+              <div>
+                <span className="text-[11px] font-bold text-[#390F1E] truncate block">
+                  {w.name}
+                </span>
+                <span className="text-xs font-extrabold text-[#6D1B3E] font-mono tabular-nums block mt-0.5">
+                  {isUnlocked ? formatIDR(w.balance) : '••••••••'}
+                </span>
               </div>
             </div>
           ))}
 
-          {/* Quick Add Wallet Button */}
           <button
             onClick={onOpenWalletModal}
-            className="min-w-[140px] p-4 rounded-2xl border-2 border-dashed border-[#F3AEC5] bg-white/50 hover:bg-white text-[#A93361] flex flex-col items-center justify-center gap-2 shrink-0 transition-colors"
+            className="p-3.5 rounded-2xl border border-dashed border-[#F3AEC5] bg-white/50 hover:bg-white text-[#CB497C] flex flex-col items-center justify-center gap-1.5 transition-all"
           >
-            <div className="w-9 h-9 rounded-full bg-[#FAF4F2] flex items-center justify-center text-[#CB497C]">
-              <Plus size={18} />
+            <div className="w-8 h-8 rounded-full bg-[#FAF4F2] flex items-center justify-center text-[#CB497C]">
+              <Plus size={16} />
             </div>
             <span className="text-xs font-bold text-center">Add Wallet</span>
           </button>
         </div>
       </div>
 
-      {/* 5. wishli$t HIGHLIGHT */}
+      {/* 4. wi$h li$t HIGHLIGHT */}
       {savingsGoals.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-[#390F1E] font-serif-brand">wishli$t</h2>
+              <h2 className="text-base font-bold text-[#390F1E] font-serif-brand">wi$h li$t</h2>
               <p className="text-[11px] text-[#A93361]">Dreams & goals you are saving for</p>
             </div>
             <button
               onClick={() => onNavigateTab('goals')}
               className="text-xs font-bold text-[#CB497C] hover:underline flex items-center gap-0.5"
             >
-              <span>All wishli$ts</span>
+              <span>All wi$h li$ts</span>
               <ChevronRight size={14} />
             </button>
           </div>
@@ -305,73 +296,108 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* 6. RECENT TRANSACTIONS */}
+      {/* 5. RECENT TRANSACTIONS (PASSWORD PROTECTED) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-[#390F1E] font-serif-brand">Recent Transactions</h2>
             <p className="text-[11px] text-[#A93361]">Latest income and expense records</p>
           </div>
-          <button
-            onClick={() => onNavigateTab('transactions')}
-            className="text-xs font-bold text-[#CB497C] hover:underline flex items-center gap-0.5"
-          >
-            <span>All Transactions</span>
-            <ChevronRight size={14} />
-          </button>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-[#F8E9E4] shadow-2xs divide-y divide-[#F8E9E4] overflow-hidden">
-          {transactions.length === 0 ? (
-            <div className="p-6 text-center text-xs text-slate-400">
-              No transactions recorded yet. Tap Expense or Income to get started.
-            </div>
-          ) : (
-            transactions.slice(0, 5).map(tx => {
-              const cat = catMap.get(tx.categoryId);
-              const wal = walletMap.get(tx.walletId);
-              return (
-                <div key={tx.id} className="p-3.5 flex items-center justify-between hover:bg-[#FAF4F2]/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-2xs"
-                      style={{ backgroundColor: cat?.color || '#A93361' }}
-                    >
-                      <IconRenderer name={cat?.icon || 'DollarSign'} size={18} />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-[#390F1E] line-clamp-1">
-                        {cat?.name || 'Transaction'}
-                      </p>
-                      <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
-                        <span>{wal?.name || 'Wallet'}</span>
-                        <span>·</span>
-                        <span>{formatDateIndo(tx.date)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <span
-                      className={`text-xs font-bold font-mono tabular-nums block ${
-                        tx.type === 'income' ? 'text-emerald-700' : 'text-[#390F1E]'
-                      }`}
-                    >
-                      {tx.type === 'income' ? '+' : '-'}
-                      {formatIDR(tx.amount)}
-                    </span>
-                    {tx.notes && (
-                      <span className="text-[10px] text-slate-400 max-w-[120px] truncate block">
-                        {tx.notes}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })
+          {isUnlocked && (
+            <button
+              onClick={() => onNavigateTab('transactions')}
+              className="text-xs font-bold text-[#CB497C] hover:underline flex items-center gap-0.5"
+            >
+              <span>All Transactions</span>
+              <ChevronRight size={14} />
+            </button>
           )}
         </div>
+
+        {!isUnlocked ? (
+          <div className="p-6 bg-white rounded-2xl border border-[#F8E9E4] shadow-2xs text-center space-y-2">
+            <div className="w-10 h-10 mx-auto rounded-xl bg-[#FAF4F2] text-[#CB497C] flex items-center justify-center">
+              <Lock size={18} />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-[#390F1E]">Transaction Records Protected</h4>
+              <p className="text-[11px] text-slate-500 max-w-xs mx-auto mt-0.5">
+                Click the padlock logo at the top header to unlock.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-[#F8E9E4] shadow-2xs divide-y divide-[#F8E9E4] overflow-hidden">
+            {transactions.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400">
+                No transactions recorded yet. Tap Expense or Income to get started.
+              </div>
+            ) : (
+              transactions.slice(0, 5).map(tx => {
+                const cat = catMap.get(tx.categoryId);
+                const wal = walletMap.get(tx.walletId);
+                return (
+                  <div key={tx.id} className="p-3.5 flex items-center justify-between hover:bg-[#FAF4F2]/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-2xs"
+                        style={{ backgroundColor: cat?.color || '#A93361' }}
+                      >
+                        <IconRenderer name={cat?.icon || 'DollarSign'} size={18} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-[#390F1E] line-clamp-1">
+                          {cat?.name || 'Transaction'}
+                        </p>
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
+                          <span>{wal?.name || 'Wallet'}</span>
+                          <span>·</span>
+                          <span>{formatDateIndo(tx.date)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <span
+                        className={`text-xs font-bold font-mono tabular-nums block ${
+                          tx.type === 'income' ? 'text-emerald-700' : 'text-[#390F1E]'
+                        }`}
+                      >
+                        {tx.type === 'income' ? '+' : '-'}
+                        {formatIDR(tx.amount)}
+                      </span>
+                      {tx.notes && (
+                        <span className="text-[10px] text-slate-400 max-w-[120px] truncate block">
+                          {tx.notes}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
+// Simple helper icon for expense
+function TrendingDownIcon(props: { size?: number }) {
+  return (
+    <svg
+      width={props.size || 24}
+      height={props.size || 24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+      <polyline points="17 18 23 18 23 12" />
+    </svg>
+  );
+}
