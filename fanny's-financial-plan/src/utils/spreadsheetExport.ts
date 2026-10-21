@@ -33,7 +33,7 @@ export function exportFinancialSpreadsheet(data: SpreadsheetDataPackage, filenam
     ['Total Recorded Income', totalIncome],
     ['Total Recorded Expense', totalExpense],
     ['Net Cash Flow', totalIncome - totalExpense],
-    ['Total Saved in wishli$t', totalSavings],
+    ['Total Saved in wi$h li$t', totalSavings],
     ['', ''],
     ['Accounting System', 'Real-time bookkeeping with month-end bank balance reconciliation'],
   ];
@@ -83,12 +83,12 @@ export function exportFinancialSpreadsheet(data: SpreadsheetDataPackage, filenam
   const wsRecurring = XLSX.utils.json_to_sheet(recurringRows);
   XLSX.utils.book_append_sheet(wb, wsRecurring, 'Recurring');
 
-  // 5. wishli$t (Savings Goals)
+  // 5. wi$h li$t (Savings Goals)
   const savingsRows = data.savingsGoals.map((g, idx) => {
     const progress = Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100));
     return {
       No: idx + 1,
-      'wishli$t Title': g.title,
+      'wi$h li$t Title': g.title,
       'Target Amount (IDR)': g.targetAmount,
       'Saved (IDR)': g.currentAmount,
       'Remaining (IDR)': Math.max(0, g.targetAmount - g.currentAmount),
@@ -98,7 +98,7 @@ export function exportFinancialSpreadsheet(data: SpreadsheetDataPackage, filenam
     };
   });
   const wsSavings = XLSX.utils.json_to_sheet(savingsRows);
-  XLSX.utils.book_append_sheet(wb, wsSavings, 'wishli$t');
+  XLSX.utils.book_append_sheet(wb, wsSavings, 'wi$h li$t');
 
   // 6. Month-End Reconciliation
   const recRows = data.reconciliationLogs.map((log, idx) => ({
