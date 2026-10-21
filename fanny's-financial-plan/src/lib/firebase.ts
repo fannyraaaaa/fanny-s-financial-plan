@@ -7,7 +7,7 @@ import {
   setDoc,
   getDoc
 } from 'firebase/firestore';
-import { getAuth, signInAnonymously, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, User } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 export enum OperationType {
@@ -69,40 +69,14 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
-// Ensure the user is authenticated anonymously for zero-barrier real-time multi-device sync
-let authInitPromise: Promise<User> | null = null;
-
-export function ensureAuthenticated(): Promise<User> {
-  if (auth.currentUser) {
-    return Promise.resolve(auth.currentUser);
-  }
-  if (!authInitPromise) {
-    authInitPromise = new Promise((resolve, reject) => {
-      const unsubscribe = onAuthStateChanged(auth, user => {
-        if (user) {
-          unsubscribe();
-          resolve(user);
-        } else {
-          signInAnonymously(auth)
-            .then(cred => {
-              unsubscribe();
-              resolve(cred.user);
-            })
-            .catch(err => {
-              unsubscribe();
-              reject(err);
-            });
-        }
-      });
-    });
-  }
-  return authInitPromise;
+// Authentication readiness check
+export async function ensureAuthenticated(): Promise<User | null> {
+  return auth.currentUser || null;
 }
 
 // Test connection on boot per SKILL.md
 async function testConnection() {
   try {
-    await ensureAuthenticated();
     await getDocFromServer(doc(db, 'financial_workspaces', 'test_connection'));
   } catch (error) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
@@ -114,4 +88,3 @@ async function testConnection() {
 testConnection();
 
 export { doc, getDoc, setDoc, onSnapshot };
-
