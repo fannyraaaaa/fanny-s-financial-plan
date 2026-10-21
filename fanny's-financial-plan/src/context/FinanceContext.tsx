@@ -215,7 +215,6 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }) => {
       try {
         setSyncStatus('syncing');
-        await ensureAuthenticated();
 
         const payload = {
           id: WORKSPACE_DOC_ID,
@@ -229,7 +228,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
           reconciliationLogs: overrideData?.reconciliationLogs ?? reconciliationLogs,
           vaultPassword: overrideData?.vaultPassword ?? vaultPassword,
           updatedAt: new Date().toISOString(),
-          updatedBy: auth.currentUser?.uid || 'device',
+          updatedBy: 'fanny_app',
         };
 
         const docRef = doc(db, 'financial_workspaces', WORKSPACE_DOC_ID);
@@ -253,7 +252,6 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     async function initFirestoreSync() {
       try {
         setSyncStatus('syncing');
-        await ensureAuthenticated();
 
         const docRef = doc(db, 'financial_workspaces', WORKSPACE_DOC_ID);
 
