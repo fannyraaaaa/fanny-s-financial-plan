@@ -1,1 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Primitive Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidFinancialWorkspace(data) {
+      return data.id is string && data.id.size() > 0 && data.id.size() <= 64
+        && data.wallets is list && data.wallets.size() <= 100
+        && data.categories is list && data.categories.size() <= 100
+        && data.transactions is list && data.transactions.size() <= 5000
+        && (!('transfers' in data) || (data.transfers is list && data.transfers.size() <= 1000))
+        && (!('recurring' in data) || (data.recurring is list && data.recurring.size() <= 500))
+        && (!('savingsGoals' in data) || (data.savingsGoals is list && data.savingsGoals.size() <= 500))
+        && (!('reconciliationLogs' in data) || (data.reconciliationLogs is list && data.reconciliationLogs.size() <= 1000))
+        && (!('vaultPassword' in data) || (data.vaultPassword is string && data.vaultPassword.size() <= 128))
+        && (!('name' in data) || (data.name is string && data.name.size() <= 128))
+        && (!('updatedBy' in data) || (data.updatedBy is string && data.updatedBy.size() <= 128))
+        && data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    // Financial Workspace Match Block
+    match /financial_workspaces/{workspaceId} {
+      allow get: if isSignedIn() && isValidId(workspaceId);
+      allow list: if false;
+      allow create: if isSignedIn()
+        && isValidId(workspaceId)
+        && incoming().id == workspaceId
+        && incoming().keys().hasAll(['id', 'wallets', 'categories', 'transactions', 'updatedAt'])
+        && incoming().keys().hasOnly(['id', 'name', 'wallets', 'categories', 'transactions', 'transfers', 'recurring', 'savingsGoals', 'reconciliationLogs', 'vaultPassword', 'updatedAt', 'updatedBy'])
+        && isValidFinancialWorkspace(incoming());
+      allow update: if isSignedIn()
+        && isValidId(workspaceId)
+        && incoming().id == existing().id
+        && isValidFinancialWorkspace(incoming());
+      allow delete: if false;
+    }
+  }
+}
 
