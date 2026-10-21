@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, CreditCard, ArrowRightLeft, Edit2, Trash2, Scale } from 'lucide-react';
+import { Plus, CreditCard, ArrowRightLeft, Edit2, Trash2, Scale, Lock, Unlock } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import { Wallet } from '../types/finance';
 import { formatIDR } from '../utils/formatters';
@@ -16,19 +16,29 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   onOpenTransfer,
   onOpenReconciliation,
 }) => {
-  const { wallets, deleteWallet } = useFinance();
+  const { wallets, deleteWallet, isUnlocked } = useFinance();
 
   return (
     <div className="space-y-4 pb-20">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#390F1E] font-serif-brand">
-            Wallets & Accounts
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-[#390F1E] font-serif-brand">
+              Wallets & Accounts
+            </h1>
+            {!isUnlocked && (
+              <span className="px-2 py-0.5 rounded-full bg-[#FAF4F2] text-[#6D1B3E] text-[10px] font-bold flex items-center gap-1 border border-[#F3AEC5]/30">
+                <Lock size={11} />
+                <span>Locked</span>
+              </span>
+            )}
+          </div>
           <p className="text-xs text-[#A93361]">Manage debit cards, cash, e-wallets & bank accounts</p>
         </div>
+
         <div className="flex items-center gap-2">
+          {/* Reconcile and Transfer NEVER require a password */}
           <button
             onClick={() => onOpenReconciliation()}
             className="px-3 py-2 rounded-xl bg-white border border-[#F3AEC5] text-[#6D1B3E] font-semibold text-xs flex items-center gap-1 shadow-2xs hover:bg-[#FAF4F2]"
@@ -60,7 +70,8 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
             <Scale size={16} />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-[#390F1E]">Month-End Reconciliation</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-[#390F1E]">Month-End Bank Reconciliation</h4>
+            <p className="text-[11px] text-[#A93361]">Quick sync real m-banking balance & book interest</p>
           </div>
         </div>
         <button
@@ -119,9 +130,16 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
               <div className="mt-6 pt-3 border-t border-white/20 flex items-end justify-between">
                 <div>
                   <span className="text-[10px] opacity-75 block">Current Balance</span>
-                  <span className="text-lg font-extrabold font-mono tabular-nums">
-                    {formatIDR(w.balance)}
-                  </span>
+                  {isUnlocked ? (
+                    <span className="text-lg font-extrabold font-mono tabular-nums">
+                      {formatIDR(w.balance)}
+                    </span>
+                  ) : (
+                    <span className="text-base font-extrabold font-mono tracking-widest text-white/90 flex items-center gap-1.5">
+                      <span>••••••••</span>
+                      <Lock size={12} className="opacity-80" />
+                    </span>
+                  )}
                   {w.lastReconciledDate && (
                     <p className="text-[10px] opacity-75 mt-0.5">
                       Reconciled: {w.lastReconciledDate}
