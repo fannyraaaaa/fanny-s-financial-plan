@@ -19,6 +19,7 @@ import { ReconciliationModal } from './components/ReconciliationModal';
 import { SavingsGoalModal } from './components/SavingsGoalModal';
 import { DepositGoalModal } from './components/DepositGoalModal';
 import { RecurringModal } from './components/RecurringModal';
+import { PasswordModal } from './components/PasswordModal';
 import { TransactionType, Wallet, SavingsGoal, RecurringTransaction } from './types/finance';
 
 function MainApp() {
@@ -44,6 +45,9 @@ function MainApp() {
 
   const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
   const [recurringToEdit, setRecurringToEdit] = useState<RecurringTransaction | null>(null);
+
+  // Vault Password Modal state
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const { savingsGoals } = useFinance();
 
@@ -87,6 +91,7 @@ function MainApp() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onOpenDailyInterest={() => handleOpenReconciliation()}
+        onOpenPasswordModal={() => setIsPasswordModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -103,7 +108,12 @@ function MainApp() {
         )}
 
         {activeTab === 'transactions' && (
-          <TransactionsView onOpenTransaction={handleOpenTransaction} />
+          <TransactionsView
+            onOpenTransaction={handleOpenTransaction}
+            onOpenRecurringModal={handleOpenRecurringModal}
+            onOpenTransfer={() => setIsTransferModalOpen(true)}
+            onOpenReconciliation={() => handleOpenReconciliation()}
+          />
         )}
 
         {activeTab === 'wallets' && (
@@ -121,7 +131,6 @@ function MainApp() {
               setActiveDepositGoal(goal);
               setIsDepositModalOpen(true);
             }}
-            onOpenRecurringModal={handleOpenRecurringModal}
           />
         )}
 
@@ -137,13 +146,20 @@ function MainApp() {
         onOpenReconciliation={() => handleOpenReconciliation()}
       />
 
-      {/* Modals & Drawers */}
+      {/* Vault Password Modal */}
+      <PasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
+
+      {/* Transaction Logging Modal (No password required) */}
       <TransactionModal
         isOpen={isTransactionModalOpen}
         onClose={() => setIsTransactionModalOpen(false)}
         defaultType={transactionType}
       />
 
+      {/* Wallet Management Modal */}
       <WalletModal
         isOpen={isWalletModalOpen}
         onClose={() => {
@@ -153,11 +169,13 @@ function MainApp() {
         walletToEdit={walletToEdit}
       />
 
+      {/* Wallet Transfer Modal (No password required) */}
       <TransferModal
         isOpen={isTransferModalOpen}
         onClose={() => setIsTransferModalOpen(false)}
       />
 
+      {/* Month-End Reconciliation Modal (No password required) */}
       <ReconciliationModal
         isOpen={isReconciliationModalOpen}
         onClose={() => {
@@ -167,6 +185,7 @@ function MainApp() {
         initialWalletId={reconciliationWalletId}
       />
 
+      {/* wi$h li$t Modal */}
       <SavingsGoalModal
         isOpen={isSavingsGoalModalOpen}
         onClose={() => {
@@ -176,6 +195,7 @@ function MainApp() {
         goalToEdit={goalToEdit}
       />
 
+      {/* Deposit to wi$h li$t Modal */}
       <DepositGoalModal
         isOpen={isDepositModalOpen}
         onClose={() => {
@@ -185,6 +205,7 @@ function MainApp() {
         goal={activeDepositGoal}
       />
 
+      {/* Auto Recurring Schedule Modal */}
       <RecurringModal
         isOpen={isRecurringModalOpen}
         onClose={() => {
