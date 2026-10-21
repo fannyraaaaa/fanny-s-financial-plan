@@ -141,7 +141,7 @@ export const SpreadsheetView: React.FC = () => {
           { id: 'transactions', label: '💸 Transactions', count: transactions.length },
           { id: 'wallets', label: '💳 Wallets & Accounts', count: wallets.length },
           { id: 'recurring', label: '🔄 Auto-Debit', count: recurring.length },
-          { id: 'goals', label: '🎯 wishli$t', count: savingsGoals.length },
+          { id: 'goals', label: '🎯 wi$h li$t', count: savingsGoals.length },
           { id: 'reconciliation', label: '⚖️ Reconciliation', count: reconciliationLogs.length },
           { id: 'summary', label: '📊 Summary' },
         ].map(tab => {
@@ -375,13 +375,13 @@ export const SpreadsheetView: React.FC = () => {
             </table>
           )}
 
-          {/* TAB 4: wishli$t */}
+          {/* TAB 4: wi$h li$t */}
           {activeTab === 'goals' && (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-[#FAF4F2] text-[#6D1B3E] border-b border-[#F3AEC5]/50 font-bold">
                   <th className="py-2.5 px-3 w-12 text-center">#</th>
-                  <th className="py-2.5 px-3">wishli$t Title</th>
+                  <th className="py-2.5 px-3">wi$h li$t Title</th>
                   <th className="py-2.5 px-3 text-right">Target Amount</th>
                   <th className="py-2.5 px-3 text-right">Saved</th>
                   <th className="py-2.5 px-3 text-right">Remaining</th>
@@ -393,7 +393,7 @@ export const SpreadsheetView: React.FC = () => {
                 {savingsGoals.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-slate-400">
-                      No wishli$t goals in database.
+                      No wi$h li$t goals in database.
                     </td>
                   </tr>
                 ) : (
