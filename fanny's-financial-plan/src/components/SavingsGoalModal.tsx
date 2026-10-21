@@ -102,10 +102,10 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
             </div>
             <div>
               <span className="text-xs uppercase tracking-wider text-[#A93361] font-semibold">
-                wishli$t
+                wi$h li$t
               </span>
               <h2 className="text-xl font-bold text-[#390F1E] font-serif-brand">
-                {goalToEdit ? 'Edit wishli$t' : 'New wishli$t Goal'}
+                {goalToEdit ? 'Edit wi$h li$t' : 'New wi$h li$t Goal'}
               </h2>
             </div>
           </div>
@@ -122,7 +122,7 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
           {/* Title */}
           <div>
             <label className="text-xs font-semibold text-[#6D1B3E] block mb-1">
-              Item Name / wishli$t Goal
+              Item Name / wi$h li$t Goal
             </label>
             <input
               type="text"
@@ -236,7 +236,7 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
             disabled={!title.trim() || !targetAmountStr || parseInt(targetAmountStr, 10) <= 0}
             className="w-full h-12 rounded-2xl bg-[#CB497C] hover:bg-[#A93361] disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center shadow-md shadow-[#CB497C]/20 transition-all active:scale-[0.99]"
           >
-            {goalToEdit ? 'Save wishli$t' : 'Add to wishli$t'}
+            {goalToEdit ? 'Save wi$h li$t' : 'Add to wi$h li$t'}
           </button>
         </div>
       </div>
