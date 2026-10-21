@@ -66,7 +66,7 @@ export const DepositGoalModal: React.FC<DepositGoalModalProps> = ({
             </div>
             <div>
               <span className="text-xs uppercase tracking-wider text-[#A93361] font-semibold">
-                Deposit to wishli$t
+                Deposit to wi$h li$t
               </span>
               <h2 className="text-lg font-bold text-[#390F1E] font-serif-brand truncate max-w-[220px]">
                 {goal.title}
