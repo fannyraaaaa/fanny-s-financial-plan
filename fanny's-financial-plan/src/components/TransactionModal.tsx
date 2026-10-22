@@ -21,7 +21,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   onClose,
   defaultType = 'expense',
 }) => {
-  const { wallets, categories, addTransaction, addCategory } = useFinance();
+  const { wallets, categories, addTransaction, addCategory, isUnlocked } = useFinance();
 
   const [type, setType] = useState<TransactionType>(defaultType);
   const [amountStr, setAmountStr] = useState('');
@@ -212,7 +212,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                     <div>
                       <p className="text-xs font-bold text-[#390F1E] truncate mt-1">{w.name}</p>
                       <p className="text-[10px] text-[#A93361] font-mono tabular-nums">
-                        Rp {w.balance.toLocaleString('en-US')}
+                        {isUnlocked ? `Rp ${w.balance.toLocaleString('en-US')}` : '••••••••'}
                       </p>
                     </div>
                   </button>
