@@ -26,9 +26,14 @@ export const Navbar: React.FC<NavbarProps> = ({
     lockVault,
     syncStatus,
     syncNow,
+    openPasswordModal,
   } = useFinance();
 
   const handleExport = () => {
+    if (!isUnlocked) {
+      if (onOpenPasswordModal) onOpenPasswordModal();
+      return;
+    }
     exportFinancialSpreadsheet({
       wallets,
       transactions,
@@ -36,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       recurring,
       savingsGoals,
       reconciliationLogs,
-    });
+    }, undefined, isUnlocked);
   };
 
   return (
@@ -138,11 +143,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           ) : (
             <button
-              onClick={onOpenPasswordModal}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] hover:opacity-95 rounded-xl transition-all flex items-center gap-1.5 shadow-xs"
-              title="Click to enter password"
+              onClick={() => {
+                if (onOpenPasswordModal) onOpenPasswordModal();
+                else openPasswordModal();
+              }}
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] hover:opacity-95 rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 shrink-0"
+              title="Tap to unlock / enter password"
             >
-              <Lock size={14} />
+              <Lock size={14} className="animate-pulse" />
               <span>Unlock</span>
             </button>
           )}
@@ -150,9 +158,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={handleExport}
             className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#CB497C] hover:bg-[#A93361] rounded-xl transition-all shadow-xs flex items-center gap-1.5 whitespace-nowrap shrink-0 active:scale-[0.98]"
+            title={!isUnlocked ? 'Masukkan password untuk download Excel' : 'Export Excel (.xlsx)'}
           >
-            <Download size={14} />
-            <span className="hidden sm:inline">Export Excel</span>
+            {!isUnlocked ? <Lock size={13} /> : <Download size={14} />}
+            <span className="hidden sm:inline">{!isUnlocked ? 'Export Excel (Locked)' : 'Export Excel'}</span>
             <span className="sm:hidden">Excel</span>
           </button>
         </div>
