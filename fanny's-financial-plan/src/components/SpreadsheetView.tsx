@@ -8,6 +8,7 @@ import {
   RotateCcw,
   ArrowDownToLine,
   Scale,
+  Lock,
 } from 'lucide-react';
 import { useFinance } from '../context/FinanceContext';
 import { exportFinancialSpreadsheet, exportTransactionsCSV } from '../utils/spreadsheetExport';
@@ -27,6 +28,8 @@ export const SpreadsheetView: React.FC = () => {
     totalNetWorth,
     monthlyIncome,
     monthlyExpense,
+    isUnlocked,
+    openPasswordModal,
   } = useFinance();
 
   const [activeTab, setActiveTab] = useState<SheetTab>('transactions');
@@ -39,6 +42,10 @@ export const SpreadsheetView: React.FC = () => {
 
   // Handle Excel Export
   const handleExportExcel = () => {
+    if (!isUnlocked) {
+      openPasswordModal();
+      return;
+    }
     exportFinancialSpreadsheet({
       wallets,
       transactions,
@@ -46,18 +53,26 @@ export const SpreadsheetView: React.FC = () => {
       recurring,
       savingsGoals,
       reconciliationLogs,
-    });
+    }, undefined, isUnlocked);
     setDownloadSuccess(true);
     setTimeout(() => setDownloadSuccess(false), 3000);
   };
 
   // Handle CSV Export
   const handleExportCSV = () => {
-    exportTransactionsCSV(transactions, categories, wallets);
+    if (!isUnlocked) {
+      openPasswordModal();
+      return;
+    }
+    exportTransactionsCSV(transactions, categories, wallets, isUnlocked);
   };
 
   // Copy to clipboard for Google Sheets pasting
   const handleCopyForGoogleSheets = () => {
+    if (!isUnlocked) {
+      openPasswordModal();
+      return;
+    }
     let tsv = '';
     if (activeTab === 'transactions') {
       tsv = ['No\tDate\tType\tCategory\tWallet\tAmount\tNotes'].join('\n') + '\n';
@@ -85,6 +100,46 @@ export const SpreadsheetView: React.FC = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
+
+  // If locked, show security vault screen so no financial records or nominals are shown
+  if (!isUnlocked) {
+    return (
+      <div className="max-w-lg mx-auto py-10 px-4 space-y-6 animate-fade-in">
+        <div
+          onClick={openPasswordModal}
+          className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F8E9E4] hover:border-[#CB497C]/60 shadow-xl text-center space-y-4 cursor-pointer transition-all group"
+          title="Tap to unlock"
+        >
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-[#6D1B3E] via-[#A93361] to-[#CB497C] text-white flex items-center justify-center shadow-lg shadow-[#6D1B3E]/15 group-hover:scale-105 transition-transform">
+            <Lock size={26} />
+          </div>
+
+          <div className="space-y-1.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#390F1E] font-serif-brand">
+              Spreadsheet is Protected
+            </h2>
+            <p className="text-xs text-[#A93361] max-w-sm mx-auto">
+              Semua nominal transaksi, saldo akun, dan ekspor spreadsheet dilindungi sandi. Tap di bawah untuk membuka data spreadsheet dan mendownload Excel.
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openPasswordModal();
+              }}
+              className="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] hover:opacity-95 shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+            >
+              <Lock size={15} />
+              <span>Tap to Unlock / Masukkan Password</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 pb-20">
