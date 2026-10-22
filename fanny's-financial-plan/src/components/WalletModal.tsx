@@ -25,7 +25,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
   onClose,
   walletToEdit,
 }) => {
-  const { addWallet, editWallet } = useFinance();
+  const { addWallet, editWallet, isUnlocked } = useFinance();
 
   const [name, setName] = useState('');
   const [type, setType] = useState<WalletType>('debit');
@@ -40,7 +40,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
       setName(walletToEdit.name);
       setType(walletToEdit.type);
       setCustomTypeLabel(walletToEdit.typeLabel);
-      setBalanceStr(String(walletToEdit.balance));
+      setBalanceStr(isUnlocked ? String(walletToEdit.balance) : '••••••••');
       setAccountNumber(walletToEdit.accountNumber || '');
       setColor(walletToEdit.color);
       setIcon(walletToEdit.icon);
@@ -66,7 +66,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    const balance = parseInt(balanceStr || '0', 10);
+    const balance = (walletToEdit && !isUnlocked) ? walletToEdit.balance : parseInt(balanceStr || '0', 10);
     const chosenTypeObj = WALLET_TYPES.find(t => t.type === type);
     const typeLabel = type === 'custom' && customTypeLabel.trim() ? customTypeLabel.trim() : (chosenTypeObj?.label || 'Wallet');
 
@@ -189,8 +189,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({
                 type="text"
                 inputMode="numeric"
                 value={balanceStr}
+                disabled={Boolean(walletToEdit && !isUnlocked)}
                 onChange={handleBalanceChange}
-                className="w-full text-sm font-semibold px-3 py-2.5 rounded-xl border border-[#F3AEC5]/60 bg-white text-[#390F1E] outline-none font-mono tabular-nums"
+                className="w-full text-sm font-semibold px-3 py-2.5 rounded-xl border border-[#F3AEC5]/60 bg-white text-[#390F1E] outline-none font-mono tabular-nums disabled:bg-[#FAF4F2] disabled:text-slate-400"
               />
             </div>
             <div>
