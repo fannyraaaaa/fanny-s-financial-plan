@@ -13,6 +13,8 @@ import {
   X,
 } from 'lucide-react';
 
+import { useFinance } from '../context/FinanceContext';
+
 interface BottomNavProps {
   activeTab: string;
   onSelectTab: (tab: string) => void;
@@ -28,6 +30,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   onOpenTransfer,
   onOpenReconciliation,
 }) => {
+  const { isUnlocked, openPasswordModal } = useFinance();
   const [showQuickSheet, setShowQuickSheet] = useState(false);
 
   const navItems = [
@@ -115,6 +118,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <button
                 onClick={() => {
                   setShowQuickSheet(false);
+                  if (!isUnlocked) {
+                    openPasswordModal();
+                    return;
+                  }
                   onOpenReconciliation();
                 }}
                 className="p-3.5 rounded-2xl bg-[#FAF4F2] hover:bg-[#F8E9E4] text-left border border-[#F8E9E4] transition-all flex items-center gap-3 active:scale-[0.98]"
