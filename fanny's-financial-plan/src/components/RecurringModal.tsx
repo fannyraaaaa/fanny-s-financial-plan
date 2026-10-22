@@ -14,7 +14,7 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
   onClose,
   itemToEdit,
 }) => {
-  const { wallets, categories, addRecurring, editRecurring } = useFinance();
+  const { wallets, categories, addRecurring, editRecurring, isUnlocked } = useFinance();
 
   const [title, setTitle] = useState('');
   const [amountStr, setAmountStr] = useState('');
@@ -29,7 +29,7 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
   useEffect(() => {
     if (itemToEdit) {
       setTitle(itemToEdit.title);
-      setAmountStr(String(itemToEdit.amount));
+      setAmountStr(isUnlocked ? String(itemToEdit.amount) : '••••••••');
       setType(itemToEdit.type);
       setWalletId(itemToEdit.walletId);
       setCategoryId(itemToEdit.categoryId);
@@ -55,7 +55,7 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = parseInt(amountStr || '0', 10);
+    const amount = (itemToEdit && !isUnlocked) ? itemToEdit.amount : parseInt(amountStr || '0', 10);
     if (!title.trim() || amount <= 0 || !walletId) return;
 
     const chosenCat = categoryId || filteredCategories[0]?.id || '';
@@ -139,9 +139,10 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
-                value={amountStr ? parseInt(amountStr, 10).toLocaleString('en-US') : ''}
+                disabled={Boolean(itemToEdit && !isUnlocked)}
+                value={!isUnlocked && itemToEdit ? '••••••••' : amountStr ? parseInt(amountStr, 10).toLocaleString('en-US') : ''}
                 onChange={handleAmountChange}
-                className="w-full text-2xl font-extrabold text-[#390F1E] bg-transparent outline-none tabular-nums"
+                className="w-full text-2xl font-extrabold text-[#390F1E] bg-transparent outline-none tabular-nums disabled:text-slate-400"
               />
             </div>
           </div>
