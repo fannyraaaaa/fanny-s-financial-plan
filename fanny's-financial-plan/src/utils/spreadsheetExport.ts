@@ -11,7 +11,15 @@ export interface SpreadsheetDataPackage {
   reconciliationLogs: ReconciliationRecord[];
 }
 
-export function exportFinancialSpreadsheet(data: SpreadsheetDataPackage, filename = `fannys_financial_plan_${getTodayString()}.xlsx`) {
+export function exportFinancialSpreadsheet(
+  data: SpreadsheetDataPackage,
+  filename = `fannys_financial_plan_${getTodayString()}.xlsx`,
+  isUnlocked = true
+) {
+  if (!isUnlocked) {
+    console.warn('Export Excel blocked: vault is locked.');
+    return false;
+  }
   const wb = XLSX.utils.book_new();
 
   // 1. Ringkasan Eksekutif (Summary)
@@ -120,7 +128,16 @@ export function exportFinancialSpreadsheet(data: SpreadsheetDataPackage, filenam
 /**
  * Generate CSV template
  */
-export function exportTransactionsCSV(transactions: Transaction[], categories: Category[], wallets: Wallet[]) {
+export function exportTransactionsCSV(
+  transactions: Transaction[],
+  categories: Category[],
+  wallets: Wallet[],
+  isUnlocked = true
+) {
+  if (!isUnlocked) {
+    console.warn('Export CSV blocked: vault is locked.');
+    return false;
+  }
   const catMap = new Map(categories.map(c => [c.id, c.name]));
   const walletMap = new Map(wallets.map(w => [w.id, w.name]));
 
