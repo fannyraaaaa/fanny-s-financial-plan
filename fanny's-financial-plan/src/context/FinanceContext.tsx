@@ -90,6 +90,9 @@ interface FinanceContextType {
   changePassword: (oldPassword: string, newPassword: string) => { success: boolean; error?: string };
   resetPasswordToDefault: () => void;
   hasCustomPassword: boolean;
+  isPasswordModalOpen: boolean;
+  openPasswordModal: () => void;
+  closePasswordModal: () => void;
 
   // Reset
   resetToDefault: () => void;
@@ -125,6 +128,9 @@ const WORKSPACE_DOC_ID = 'fanny_vault';
 export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Vault Security State
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState<boolean>(false);
+  const openPasswordModal = () => setIsPasswordModalOpen(true);
+  const closePasswordModal = () => setIsPasswordModalOpen(false);
   const [vaultPassword, setVaultPassword] = useState<string>(() => {
     return localStorage.getItem(STORAGE_KEYS.VAULT_PASSWORD) || DEFAULT_VAULT_PASSWORD;
   });
@@ -832,6 +838,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         changePassword,
         resetPasswordToDefault,
         hasCustomPassword,
+        isPasswordModalOpen,
+        openPasswordModal,
+        closePasswordModal,
         resetToDefault,
         syncStatus,
         lastSyncedAt,
