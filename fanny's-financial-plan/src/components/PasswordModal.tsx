@@ -87,7 +87,10 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#390F1E]/50 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#390F1E]/50 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl border border-[#F8E9E4] flex flex-col"
         onClick={e => e.stopPropagation()}
