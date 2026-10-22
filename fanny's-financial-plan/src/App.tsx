@@ -46,10 +46,7 @@ function MainApp() {
   const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
   const [recurringToEdit, setRecurringToEdit] = useState<RecurringTransaction | null>(null);
 
-  // Vault Password Modal state
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-
-  const { savingsGoals } = useFinance();
+  const { savingsGoals, isPasswordModalOpen, openPasswordModal, closePasswordModal } = useFinance();
 
   const handleOpenTransaction = (type: TransactionType) => {
     setTransactionType(type);
@@ -91,7 +88,7 @@ function MainApp() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onOpenDailyInterest={() => handleOpenReconciliation()}
-        onOpenPasswordModal={() => setIsPasswordModalOpen(true)}
+        onOpenPasswordModal={openPasswordModal}
       />
 
       {/* Main Content Area */}
@@ -149,7 +146,7 @@ function MainApp() {
       {/* Vault Password Modal */}
       <PasswordModal
         isOpen={isPasswordModalOpen}
-        onClose={() => setIsPasswordModalOpen(false)}
+        onClose={closePasswordModal}
       />
 
       {/* Transaction Logging Modal (No password required) */}
