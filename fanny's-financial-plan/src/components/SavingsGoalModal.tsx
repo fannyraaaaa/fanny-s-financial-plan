@@ -18,7 +18,7 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
   onClose,
   goalToEdit,
 }) => {
-  const { addSavingsGoal, editSavingsGoal } = useFinance();
+  const { addSavingsGoal, editSavingsGoal, isUnlocked } = useFinance();
 
   const [title, setTitle] = useState('');
   const [targetAmountStr, setTargetAmountStr] = useState('');
@@ -31,8 +31,8 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
   useEffect(() => {
     if (goalToEdit) {
       setTitle(goalToEdit.title);
-      setTargetAmountStr(String(goalToEdit.targetAmount));
-      setInitialSavedStr(String(goalToEdit.currentAmount));
+      setTargetAmountStr(isUnlocked ? String(goalToEdit.targetAmount) : '••••••••');
+      setInitialSavedStr(isUnlocked ? String(goalToEdit.currentAmount) : '••••••••');
       setTargetDate(goalToEdit.targetDate);
       setColor(goalToEdit.color);
       setIcon(goalToEdit.icon);
@@ -62,8 +62,8 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const targetAmount = parseInt(targetAmountStr || '0', 10);
-    const currentAmount = parseInt(initialSavedStr || '0', 10);
+    const targetAmount = (goalToEdit && !isUnlocked) ? goalToEdit.targetAmount : parseInt(targetAmountStr || '0', 10);
+    const currentAmount = (goalToEdit && !isUnlocked) ? goalToEdit.currentAmount : parseInt(initialSavedStr || '0', 10);
     if (!title.trim() || targetAmount <= 0) return;
 
     if (goalToEdit) {
@@ -144,9 +144,10 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
-                value={targetAmountStr ? parseInt(targetAmountStr, 10).toLocaleString('en-US') : ''}
+                disabled={Boolean(goalToEdit && !isUnlocked)}
+                value={!isUnlocked && goalToEdit ? '••••••••' : targetAmountStr ? parseInt(targetAmountStr, 10).toLocaleString('en-US') : ''}
                 onChange={handleTargetChange}
-                className="w-full text-2xl font-extrabold text-[#390F1E] bg-transparent outline-none tabular-nums"
+                className="w-full text-2xl font-extrabold text-[#390F1E] bg-transparent outline-none tabular-nums disabled:text-slate-400"
               />
             </div>
           </div>
@@ -160,9 +161,10 @@ export const SavingsGoalModal: React.FC<SavingsGoalModalProps> = ({
               <input
                 type="text"
                 inputMode="numeric"
-                value={initialSavedStr ? parseInt(initialSavedStr, 10).toLocaleString('en-US') : ''}
+                disabled={Boolean(goalToEdit && !isUnlocked)}
+                value={!isUnlocked && goalToEdit ? '••••••••' : initialSavedStr ? parseInt(initialSavedStr, 10).toLocaleString('en-US') : ''}
                 onChange={handleInitialSavedChange}
-                className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-[#F3AEC5]/60 bg-white text-[#390F1E] outline-none font-mono tabular-nums"
+                className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-[#F3AEC5]/60 bg-white text-[#390F1E] outline-none font-mono tabular-nums disabled:bg-[#FAF4F2] disabled:text-slate-400"
               />
             </div>
             <div>
