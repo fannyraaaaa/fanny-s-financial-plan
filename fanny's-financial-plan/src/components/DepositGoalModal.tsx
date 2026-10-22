@@ -15,7 +15,7 @@ export const DepositGoalModal: React.FC<DepositGoalModalProps> = ({
   onClose,
   goal,
 }) => {
-  const { wallets, depositToGoal } = useFinance();
+  const { wallets, depositToGoal, isUnlocked } = useFinance();
 
   const [walletId, setWalletId] = useState(wallets[0]?.id || '');
   const [amountStr, setAmountStr] = useState('');
@@ -86,8 +86,8 @@ export const DepositGoalModal: React.FC<DepositGoalModalProps> = ({
           {/* Target Progress Status */}
           <div className="p-3.5 bg-white rounded-2xl border border-[#F3AEC5]/40 space-y-2">
             <div className="flex justify-between text-xs text-[#6D1B3E]">
-              <span>Saved: <strong>{formatIDR(goal.currentAmount)}</strong></span>
-              <span>Target: <strong>{formatIDR(goal.targetAmount)}</strong></span>
+              <span>Saved: <strong>{isUnlocked ? formatIDR(goal.currentAmount) : '••••••••'}</strong></span>
+              <span>Target: <strong>{isUnlocked ? formatIDR(goal.targetAmount) : '••••••••'}</strong></span>
             </div>
             <div className="w-full bg-[#F8E9E4] h-2 rounded-full overflow-hidden">
               <div
@@ -96,7 +96,7 @@ export const DepositGoalModal: React.FC<DepositGoalModalProps> = ({
               />
             </div>
             <p className="text-[11px] text-[#A93361] text-right font-medium">
-              Remaining needed: {formatIDR(remaining)}
+              Remaining needed: {isUnlocked ? formatIDR(remaining) : '••••••••'}
             </p>
           </div>
 
@@ -130,7 +130,7 @@ export const DepositGoalModal: React.FC<DepositGoalModalProps> = ({
                   +{val >= 1000000 ? `${val / 1000000} M` : `${val / 1000} K`}
                 </button>
               ))}
-              {remaining > 0 && (
+              {remaining > 0 && isUnlocked && (
                 <button
                   type="button"
                   onClick={() => handleQuickFill(remaining)}
@@ -154,7 +154,7 @@ export const DepositGoalModal: React.FC<DepositGoalModalProps> = ({
             >
               {wallets.map(w => (
                 <option key={w.id} value={w.id}>
-                  {w.name} ({formatIDR(w.balance)})
+                  {w.name} {isUnlocked ? `(${formatIDR(w.balance)})` : ''}
                 </option>
               ))}
             </select>
