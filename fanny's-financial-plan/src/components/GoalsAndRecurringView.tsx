@@ -22,7 +22,7 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
   onOpenSavingsGoalModal,
   onOpenDepositModal,
 }) => {
-  const { savingsGoals, deleteSavingsGoal } = useFinance();
+  const { savingsGoals, deleteSavingsGoal, isUnlocked, openPasswordModal } = useFinance();
 
   return (
     <div className="space-y-4 pb-20">
@@ -38,7 +38,13 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
         </div>
 
         <button
-          onClick={() => onOpenSavingsGoalModal()}
+          onClick={() => {
+            if (!isUnlocked) {
+              openPasswordModal();
+              return;
+            }
+            onOpenSavingsGoalModal();
+          }}
           className="px-3.5 py-2 rounded-xl bg-[#CB497C] hover:bg-[#A93361] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
         >
           <Plus size={16} />
@@ -100,20 +106,30 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
 
                   <div className="flex items-center gap-1">
                     <button
-                      onClick={() => onOpenSavingsGoalModal(goal)}
+                      onClick={() => {
+                        if (!isUnlocked) {
+                          openPasswordModal();
+                          return;
+                        }
+                        onOpenSavingsGoalModal(goal);
+                      }}
                       className="w-8 h-8 rounded-lg text-slate-400 hover:text-[#6D1B3E] hover:bg-[#FAF4F2] flex items-center justify-center transition-colors"
-                      title="Edit wi$h li$t"
+                      title={!isUnlocked ? "Masukkan password untuk edit" : "Edit wi$h li$t"}
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
                       onClick={() => {
+                        if (!isUnlocked) {
+                          openPasswordModal();
+                          return;
+                        }
                         if (window.confirm(`Delete wi$h li$t "${goal.title}"?`)) {
                           deleteSavingsGoal(goal.id);
                         }
                       }}
                       className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors"
-                      title="Delete wi$h li$t"
+                      title={!isUnlocked ? "Masukkan password untuk hapus" : "Delete wi$h li$t"}
                     >
                       <Trash2 size={14} />
                     </button>
@@ -124,10 +140,10 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-baseline text-xs">
                     <span className="font-extrabold text-[#390F1E] font-mono">
-                      {formatIDR(goal.currentAmount)}
+                      {isUnlocked ? formatIDR(goal.currentAmount) : '••••••••'}
                     </span>
                     <span className="text-[11px] text-slate-500 font-mono">
-                      target {formatIDR(goal.targetAmount)}
+                      target {isUnlocked ? formatIDR(goal.targetAmount) : '••••••••'}
                     </span>
                   </div>
 
@@ -144,7 +160,7 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
                   <div className="flex justify-between items-center text-[11px]">
                     <span className="font-bold text-[#CB497C]">{progress}% collected</span>
                     <span className="text-slate-500 font-medium">
-                      {isAchieved ? '🎉 Goal Achieved!' : `Remaining: ${formatIDR(remaining)}`}
+                      {isAchieved ? '🎉 Goal Achieved!' : isUnlocked ? `Remaining: ${formatIDR(remaining)}` : 'Remaining: ••••••••'}
                     </span>
                   </div>
                 </div>
@@ -152,7 +168,13 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
                 {/* Deposit action button */}
                 {!isAchieved && (
                   <button
-                    onClick={() => onOpenDepositModal(goal)}
+                    onClick={() => {
+                      if (!isUnlocked) {
+                        openPasswordModal();
+                        return;
+                      }
+                      onOpenDepositModal(goal);
+                    }}
                     className="w-full py-2 px-3 rounded-xl bg-[#FAF4F2] hover:bg-[#F8E9E4] text-[#6D1B3E] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <TrendingUp size={14} className="text-[#CB497C]" />
