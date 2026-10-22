@@ -9,7 +9,7 @@ interface TransferModalProps {
 }
 
 export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose }) => {
-  const { wallets, transferWallet } = useFinance();
+  const { wallets, transferWallet, isUnlocked } = useFinance();
 
   const [fromWalletId, setFromWalletId] = useState(wallets[0]?.id || '');
   const [toWalletId, setToWalletId] = useState(wallets[1]?.id || '');
@@ -95,13 +95,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
                 >
                   {wallets.map(w => (
                     <option key={w.id} value={w.id} disabled={w.id === toWalletId}>
-                      {w.name} (Rp {w.balance.toLocaleString('en-US')})
+                      {w.name} {isUnlocked ? `(Rp ${w.balance.toLocaleString('en-US')})` : ''}
                     </option>
                   ))}
                 </select>
                 {fromWallet && (
                   <p className="text-[10px] text-[#A93361] mt-1 tabular-nums font-mono">
-                    Remaining: Rp {fromWallet.balance.toLocaleString('en-US')}
+                    Remaining: {isUnlocked ? `Rp ${fromWallet.balance.toLocaleString('en-US')}` : '••••••••'}
                   </p>
                 )}
               </div>
@@ -118,13 +118,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
                 >
                   {wallets.map(w => (
                     <option key={w.id} value={w.id} disabled={w.id === fromWalletId}>
-                      {w.name} (Rp {w.balance.toLocaleString('en-US')})
+                      {w.name} {isUnlocked ? `(Rp ${w.balance.toLocaleString('en-US')})` : ''}
                     </option>
                   ))}
                 </select>
                 {toWallet && (
                   <p className="text-[10px] text-[#A93361] mt-1 tabular-nums font-mono">
-                    Current balance: Rp {toWallet.balance.toLocaleString('en-US')}
+                    Current balance: {isUnlocked ? `Rp ${toWallet.balance.toLocaleString('en-US')}` : '••••••••'}
                   </p>
                 )}
               </div>
