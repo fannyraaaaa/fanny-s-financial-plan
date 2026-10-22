@@ -49,6 +49,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     isUnlocked,
     unlockVault,
     hasCustomPassword,
+    openPasswordModal,
   } = useFinance();
 
   // Sub-tabs inside Transactions
@@ -73,13 +74,17 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     }
   };
 
-  // IF LOCKED: Show clean locked screen (password entered only via top padlock)
+  // IF LOCKED: Show clean locked screen with Tap to Unlock
   if (!isUnlocked) {
     return (
       <div className="max-w-lg mx-auto py-10 px-4 space-y-6 animate-fade-in">
         {/* Lock Hero Card */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F8E9E4] shadow-xl text-center space-y-4">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-[#6D1B3E] via-[#A93361] to-[#CB497C] text-white flex items-center justify-center shadow-lg shadow-[#6D1B3E]/15">
+        <div
+          onClick={openPasswordModal}
+          className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F8E9E4] hover:border-[#CB497C]/60 shadow-xl text-center space-y-4 cursor-pointer transition-all group"
+          title="Tap to unlock"
+        >
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-[#6D1B3E] via-[#A93361] to-[#CB497C] text-white flex items-center justify-center shadow-lg shadow-[#6D1B3E]/15 group-hover:scale-105 transition-transform">
             <Lock size={26} />
           </div>
 
@@ -88,8 +93,22 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
               Transactions are Protected
             </h2>
             <p className="text-xs text-[#A93361] max-w-sm mx-auto">
-              Please click the padlock logo at the top header to enter your password and view transactions.
+              Semua catatan transaksi dilindungi password. Tap tombol di bawah untuk membuka akses.
             </p>
+          </div>
+
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openPasswordModal();
+              }}
+              className="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] hover:opacity-95 shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+            >
+              <Lock size={15} />
+              <span>Tap to Unlock / Masukkan Password</span>
+            </button>
           </div>
 
           {/* Quick Record Without Password Reminder */}
