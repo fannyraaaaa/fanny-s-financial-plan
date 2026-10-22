@@ -16,7 +16,7 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
   onOpenTransfer,
   onOpenReconciliation,
 }) => {
-  const { wallets, deleteWallet, isUnlocked } = useFinance();
+  const { wallets, deleteWallet, isUnlocked, openPasswordModal } = useFinance();
 
   return (
     <div className="space-y-4 pb-20">
@@ -28,20 +28,31 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
               Wallets & Accounts
             </h1>
             {!isUnlocked && (
-              <span className="px-2 py-0.5 rounded-full bg-[#FAF4F2] text-[#6D1B3E] text-[10px] font-bold flex items-center gap-1 border border-[#F3AEC5]/30">
-                <Lock size={11} />
-                <span>Locked</span>
-              </span>
+              <button
+                type="button"
+                onClick={openPasswordModal}
+                className="px-2.5 py-1 rounded-full bg-[#FAF4F2] hover:bg-[#F8E9E4] text-[#6D1B3E] text-[10px] font-bold flex items-center gap-1 border border-[#F3AEC5]/50 transition-colors cursor-pointer shadow-2xs active:scale-95"
+                title="Tap to unlock"
+              >
+                <Lock size={11} className="text-[#CB497C]" />
+                <span>Tap to unlock</span>
+              </button>
             )}
           </div>
           <p className="text-xs text-[#A93361]">Manage debit cards, cash, e-wallets & bank accounts</p>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Reconcile and Transfer NEVER require a password */}
           <button
-            onClick={() => onOpenReconciliation()}
+            onClick={() => {
+              if (!isUnlocked) {
+                openPasswordModal();
+                return;
+              }
+              onOpenReconciliation();
+            }}
             className="px-3 py-2 rounded-xl bg-white border border-[#F3AEC5] text-[#6D1B3E] font-semibold text-xs flex items-center gap-1 shadow-2xs hover:bg-[#FAF4F2]"
+            title={!isUnlocked ? "Masukkan password untuk rekonsiliasi" : "Reconcile"}
           >
             <Scale size={14} />
             <span>Reconcile</span>
@@ -135,10 +146,15 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                       {formatIDR(w.balance)}
                     </span>
                   ) : (
-                    <span className="text-base font-extrabold font-mono tracking-widest text-white/90 flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={openPasswordModal}
+                      className="text-base font-extrabold font-mono tracking-widest text-white/90 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer group"
+                      title="Tap to unlock"
+                    >
                       <span>••••••••</span>
-                      <Lock size={12} className="opacity-80" />
-                    </span>
+                      <Lock size={12} className="opacity-80 group-hover:scale-110 transition-transform" />
+                    </button>
                   )}
                   {w.lastReconciledDate && (
                     <p className="text-[10px] opacity-75 mt-0.5">
@@ -149,21 +165,37 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
 
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => onOpenReconciliation(w.id)}
+                    onClick={() => {
+                      if (!isUnlocked) {
+                        openPasswordModal();
+                        return;
+                      }
+                      onOpenReconciliation(w.id);
+                    }}
                     className="w-8 h-8 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
-                    title="Reconcile Bank Balance"
+                    title={!isUnlocked ? "Masukkan password untuk rekonsiliasi" : "Reconcile Bank Balance"}
                   >
                     <Scale size={13} />
                   </button>
                   <button
-                    onClick={() => onOpenWalletModal(w)}
+                    onClick={() => {
+                      if (!isUnlocked) {
+                        openPasswordModal();
+                        return;
+                      }
+                      onOpenWalletModal(w);
+                    }}
                     className="w-8 h-8 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
-                    title="Edit Wallet"
+                    title={!isUnlocked ? "Masukkan password untuk edit dompet" : "Edit Wallet"}
                   >
                     <Edit2 size={13} />
                   </button>
                   <button
                     onClick={() => {
+                      if (!isUnlocked) {
+                        openPasswordModal();
+                        return;
+                      }
                       if (window.confirm(`Delete wallet "${w.name}"?`)) {
                         deleteWallet(w.id);
                       }
