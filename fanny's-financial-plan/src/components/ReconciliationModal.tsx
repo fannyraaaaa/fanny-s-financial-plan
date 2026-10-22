@@ -14,7 +14,7 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
   onClose,
   initialWalletId,
 }) => {
-  const { wallets, reconcileWallet, reconciliationLogs } = useFinance();
+  const { wallets, reconcileWallet, reconciliationLogs, isUnlocked } = useFinance();
 
   const [selectedWalletId, setSelectedWalletId] = useState(
     initialWalletId || wallets[0]?.id || ''
@@ -136,7 +136,9 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
                         }`}
                       >
                         <span>{w.name}</span>
-                        <span className="font-mono text-[10px] opacity-80">({formatIDR(w.balance)})</span>
+                        {isUnlocked && (
+                          <span className="font-mono text-[10px] opacity-80">({formatIDR(w.balance)})</span>
+                        )}
                       </button>
                     );
                   })}
@@ -152,7 +154,7 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
                         Balance Recorded in App
                       </span>
                       <span className="text-xl font-extrabold text-[#390F1E] font-mono tabular-nums">
-                        {formatIDR(appBalance)}
+                        {isUnlocked ? formatIDR(appBalance) : '••••••••'}
                       </span>
                     </div>
                     {currentWallet.lastReconciledDate && (
@@ -172,7 +174,7 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
                       <input
                         type="text"
                         inputMode="numeric"
-                        placeholder={appBalance.toLocaleString('en-US')}
+                        placeholder={isUnlocked ? appBalance.toLocaleString('en-US') : '0'}
                         value={realBalanceStr !== '' ? parseInt(realBalanceStr, 10).toLocaleString('en-US') : ''}
                         onChange={handleRealBalanceChange}
                         className="w-full text-2xl font-extrabold text-[#390F1E] bg-transparent outline-none tabular-nums placeholder:text-[#F3AEC5]"
@@ -186,14 +188,22 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
                       <span className="font-semibold text-[#6D1B3E]">Balance Difference:</span>
                       <span
                         className={`text-base font-extrabold font-mono tabular-nums ${
-                          difference > 0
+                          !isUnlocked
+                            ? 'text-slate-600'
+                            : difference > 0
                             ? 'text-emerald-700'
                             : difference < 0
                             ? 'text-[#CB497C]'
                             : 'text-slate-600'
                         }`}
                       >
-                        {difference > 0 ? `+${formatIDR(difference)}` : difference < 0 ? `-${formatIDR(Math.abs(difference))}` : 'Rp 0 (Exact match)'}
+                        {!isUnlocked
+                          ? '••••••••'
+                          : difference > 0
+                          ? `+${formatIDR(difference)}`
+                          : difference < 0
+                          ? `-${formatIDR(Math.abs(difference))}`
+                          : 'Rp 0 (Exact match)'}
                       </span>
                     </div>
 
