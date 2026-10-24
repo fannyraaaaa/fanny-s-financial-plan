@@ -207,13 +207,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose })
               <div className="flex justify-between text-[#6D1B3E]">
                 <span>Total Deducted from {fromWallet.name}:</span>
                 <span className="font-bold text-[#390F1E] tabular-nums">
-                  Rp {totalDeduction.toLocaleString('en-US')}
+                  {isUnlocked ? `Rp ${totalDeduction.toLocaleString('en-US')}` : '••••••••'}
                 </span>
               </div>
               <div className="flex justify-between text-[#6D1B3E]">
                 <span>Received in {toWallet.name}:</span>
                 <span className="font-bold text-emerald-700 tabular-nums">
-                  +Rp {amount.toLocaleString('en-US')}
+                  {isUnlocked ? `+Rp ${amount.toLocaleString('en-US')}` : '••••••••'}
                 </span>
               </div>
             </div>
