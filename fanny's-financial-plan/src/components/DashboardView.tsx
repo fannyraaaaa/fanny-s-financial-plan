@@ -397,25 +397,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
             ) : (
               transactions.slice(0, 5).map(tx => {
-                const cat = catMap.get(tx.categoryId);
+                const isTransfer =
+                  tx.isTransfer ||
+                  tx.id?.startsWith('tx-tr-') ||
+                  tx.notes?.startsWith('Transfer to ') ||
+                  tx.notes?.startsWith('Transfer from ');
+                const cat = isTransfer ? null : catMap.get(tx.categoryId || '');
                 const wal = walletMap.get(tx.walletId);
                 return (
                   <div key={tx.id} className="p-3.5 flex items-center justify-between hover:bg-[#FAF4F2]/50 transition-colors">
                     <div className="flex items-center gap-3">
                       <div
                         className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-2xs"
-                        style={{ backgroundColor: cat?.color || '#A93361' }}
+                        style={{ backgroundColor: isTransfer ? '#6D1B3E' : (cat?.color || '#A93361') }}
                       >
-                        <IconRenderer name={cat?.icon || 'DollarSign'} size={18} />
+                        {isTransfer ? (
+                          <ArrowRightLeft size={18} />
+                        ) : (
+                          <IconRenderer name={cat?.icon || 'DollarSign'} size={18} />
+                        )}
                       </div>
                       <div>
                         <p className="text-xs font-bold text-[#390F1E] line-clamp-1">
-                          {cat?.name || 'Transaction'}
+                          {isTransfer ? (tx.notes || 'Transfer Antar Wallet') : (cat?.name || 'Transaction')}
                         </p>
                         <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
                           <span>{wal?.name || 'Wallet'}</span>
                           <span>·</span>
                           <span>{formatDateIndo(tx.date)}</span>
+                          {isTransfer && (
+                            <>
+                              <span>·</span>
+                              <span className="text-[9px] font-bold text-[#6D1B3E] bg-[#FAF4F2] border border-[#F3AEC5]/50 px-1.5 py-0.2 rounded-full">
+                                Transfer
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -429,7 +446,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {tx.type === 'income' ? '+' : '-'}
                         {formatIDR(tx.amount)}
                       </span>
-                      {tx.notes && (
+                      {!isTransfer && tx.notes && (
                         <span className="text-[10px] text-slate-400 max-w-[120px] truncate block">
                           {tx.notes}
                         </span>
