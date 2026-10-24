@@ -23,7 +23,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { unlockVault, changePassword, resetPasswordToDefault, hasCustomPassword } = useFinance();
+  const { unlockVault, changePassword } = useFinance();
 
   const [isSettingsView, setIsSettingsView] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -75,14 +75,6 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
       }, 1500);
     } else {
       setChangeErrorMsg(res.error || 'Failed to change password.');
-    }
-  };
-
-  const handleResetDefault = () => {
-    if (window.confirm('Reset password back to default?')) {
-      resetPasswordToDefault();
-      setChangeSuccessMsg('Password has been reset.');
-      setTimeout(() => setChangeSuccessMsg(''), 2500);
     }
   };
 
@@ -250,23 +242,13 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
               </div>
             )}
 
-            <div className="pt-2 flex items-center gap-2">
+            <div className="pt-2">
               <button
                 type="submit"
-                className="flex-1 py-2.5 rounded-xl bg-[#6D1B3E] hover:bg-[#5A1432] text-white font-bold text-xs transition-colors shadow-xs"
+                className="w-full py-2.5 rounded-xl bg-[#6D1B3E] hover:bg-[#5A1432] text-white font-bold text-xs transition-colors shadow-xs"
               >
                 Save New Password
               </button>
-              {hasCustomPassword && (
-                <button
-                  type="button"
-                  onClick={handleResetDefault}
-                  className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
-                  title="Reset to default password"
-                >
-                  Reset
-                </button>
-              )}
             </div>
           </form>
         )}
