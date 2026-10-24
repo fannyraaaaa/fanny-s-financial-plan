@@ -210,11 +210,11 @@ export const ReconciliationModal: React.FC<ReconciliationModalProps> = ({
                     <div className="text-[11px] text-[#390F1E] leading-relaxed pt-1 border-t border-[#F3AEC5]/40">
                       {difference > 0 ? (
                         <p className="text-emerald-800">
-                          ✨ M-banking balance is higher by <strong>{formatIDR(difference)}</strong>. This difference is recorded as <strong>Bank Interest</strong> (Income).
+                          ✨ M-banking balance is higher by <strong>{isUnlocked ? formatIDR(difference) : '••••••••'}</strong>. This difference is recorded as <strong>Bank Interest</strong> (Income).
                         </p>
                       ) : difference < 0 ? (
                         <p className="text-rose-800">
-                          ℹ️ M-banking balance is lower by <strong>{formatIDR(Math.abs(difference))}</strong>. This difference is recorded as <strong>Bank Fees / Tax</strong> (Expense).
+                          ℹ️ M-banking balance is lower by <strong>{isUnlocked ? formatIDR(Math.abs(difference)) : '••••••••'}</strong>. This difference is recorded as <strong>Bank Fees / Tax</strong> (Expense).
                         </p>
                       ) : (
                         <p className="text-slate-600">
