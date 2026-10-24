@@ -102,6 +102,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <button
                 onClick={() => {
                   setShowQuickSheet(false);
+                  if (!isUnlocked) {
+                    openPasswordModal();
+                    return;
+                  }
                   onOpenTransfer();
                 }}
                 className="p-3.5 rounded-2xl bg-[#FAF4F2] hover:bg-[#F8E9E4] text-left border border-[#F8E9E4] transition-all flex items-center gap-3 active:scale-[0.98]"
