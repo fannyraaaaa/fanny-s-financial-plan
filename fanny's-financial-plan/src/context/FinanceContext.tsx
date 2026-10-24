@@ -769,8 +769,15 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     setRecurring(INITIAL_RECURRING);
     setSavingsGoals(INITIAL_SAVINGS_GOALS);
     setReconciliationLogs(INITIAL_RECONCILIATION_LOGS);
-    setVaultPassword(DEFAULT_VAULT_PASSWORD);
-    localStorage.clear();
+
+    // Keep vaultPassword strictly intact (cannot be reset from app UI)
+    localStorage.setItem(STORAGE_KEYS.WALLETS, JSON.stringify(INITIAL_WALLETS));
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(INITIAL_CATEGORIES));
+    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(INITIAL_TRANSACTIONS));
+    localStorage.removeItem(STORAGE_KEYS.TRANSFERS);
+    localStorage.setItem(STORAGE_KEYS.RECURRING, JSON.stringify(INITIAL_RECURRING));
+    localStorage.setItem(STORAGE_KEYS.SAVINGS, JSON.stringify(INITIAL_SAVINGS_GOALS));
+    localStorage.setItem(STORAGE_KEYS.RECONCILIATION, JSON.stringify(INITIAL_RECONCILIATION_LOGS));
 
     saveToFirestore({
       wallets: INITIAL_WALLETS,
@@ -780,7 +787,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       recurring: INITIAL_RECURRING,
       savingsGoals: INITIAL_SAVINGS_GOALS,
       reconciliationLogs: INITIAL_RECONCILIATION_LOGS,
-      vaultPassword: DEFAULT_VAULT_PASSWORD,
+      vaultPassword,
     });
   };
 
