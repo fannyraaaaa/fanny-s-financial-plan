@@ -58,7 +58,13 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
           <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-[#F3AEC5] space-y-2">
             <p className="text-xs text-slate-500">No wi$h li$t items created yet.</p>
             <button
-              onClick={() => onOpenSavingsGoalModal()}
+              onClick={() => {
+                if (!isUnlocked) {
+                  openPasswordModal();
+                  return;
+                }
+                onOpenSavingsGoalModal();
+              }}
               className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#CB497C] rounded-xl hover:bg-[#A93361]"
             >
               + Add First wi$h li$t
@@ -151,14 +157,16 @@ export const GoalsAndRecurringView: React.FC<GoalsAndRecurringViewProps> = ({
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
-                        width: `${progress}%`,
+                        width: isUnlocked ? `${progress}%` : '0%',
                         backgroundColor: goal.color || '#CB497C',
                       }}
                     />
                   </div>
 
                   <div className="flex justify-between items-center text-[11px]">
-                    <span className="font-bold text-[#CB497C]">{progress}% collected</span>
+                    <span className="font-bold text-[#CB497C]">
+                      {isUnlocked ? `${progress}% collected` : '••% collected'}
+                    </span>
                     <span className="text-slate-500 font-medium">
                       {isAchieved ? '🎉 Goal Achieved!' : isUnlocked ? `Remaining: ${formatIDR(remaining)}` : 'Remaining: ••••••••'}
                     </span>
