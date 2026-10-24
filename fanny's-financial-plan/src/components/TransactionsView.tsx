@@ -107,7 +107,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
               className="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] hover:opacity-95 shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
             >
               <Lock size={15} />
-              <span>Tap to Unlock / Masukkan Password</span>
+              <span>Unlock</span>
             </button>
           </div>
 
