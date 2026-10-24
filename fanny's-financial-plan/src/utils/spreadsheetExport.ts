@@ -23,12 +23,18 @@ export function exportFinancialSpreadsheet(
   const wb = XLSX.utils.book_new();
 
   // 1. Ringkasan Eksekutif (Summary)
+  const isTrTx = (t: Transaction) =>
+    t.isTransfer ||
+    t.id?.startsWith('tx-tr-') ||
+    t.notes?.startsWith('Transfer to ') ||
+    t.notes?.startsWith('Transfer from ');
+
   const totalBalance = data.wallets.reduce((acc, w) => acc + w.balance, 0);
   const totalIncome = data.transactions
-    .filter(t => t.type === 'income')
+    .filter(t => t.type === 'income' && !isTrTx(t))
     .reduce((acc, t) => acc + t.amount, 0);
   const totalExpense = data.transactions
-    .filter(t => t.type === 'expense')
+    .filter(t => t.type === 'expense' && !isTrTx(t))
     .reduce((acc, t) => acc + t.amount, 0);
   const totalSavings = data.savingsGoals.reduce((acc, g) => acc + g.currentAmount, 0);
 
@@ -52,15 +58,18 @@ export function exportFinancialSpreadsheet(
   const catMap = new Map(data.categories.map(c => [c.id, c.name]));
   const walletMap = new Map(data.wallets.map(w => [w.id, w.name]));
 
-  const transactionRows = data.transactions.map((tx, idx) => ({
-    No: idx + 1,
-    Date: tx.date,
-    Type: tx.type === 'income' ? 'Income' : 'Expense',
-    Category: catMap.get(tx.categoryId) || 'Other',
-    'Wallet / Account': walletMap.get(tx.walletId) || 'Unknown',
-    'Amount (IDR)': tx.amount,
-    'Notes / Description': tx.notes || '-',
-  }));
+  const transactionRows = data.transactions.map((tx, idx) => {
+    const isTransfer = isTrTx(tx);
+    return {
+      No: idx + 1,
+      Date: tx.date,
+      Type: tx.type === 'income' ? 'Income' : 'Expense',
+      Category: isTransfer ? 'Transfer' : (catMap.get(tx.categoryId || '') || 'Other'),
+      'Wallet / Account': walletMap.get(tx.walletId) || 'Unknown',
+      'Amount (IDR)': tx.amount,
+      'Notes / Description': tx.notes || '-',
+    };
+  });
   const wsTx = XLSX.utils.json_to_sheet(transactionRows);
   XLSX.utils.book_append_sheet(wb, wsTx, 'Transactions');
 
@@ -142,14 +151,21 @@ export function exportTransactionsCSV(
   const walletMap = new Map(wallets.map(w => [w.id, w.name]));
 
   const headers = ['Date', 'Type', 'Category', 'Wallet', 'Amount', 'Notes'];
-  const rows = transactions.map(t => [
-    t.date,
-    t.type === 'income' ? 'Income' : 'Expense',
-    `"${catMap.get(t.categoryId) || ''}"`,
-    `"${walletMap.get(t.walletId) || ''}"`,
-    t.amount,
-    `"${(t.notes || '').replace(/"/g, '""')}"`,
-  ]);
+  const rows = transactions.map(t => {
+    const isTransfer =
+      t.isTransfer ||
+      t.id?.startsWith('tx-tr-') ||
+      t.notes?.startsWith('Transfer to ') ||
+      t.notes?.startsWith('Transfer from ');
+    return [
+      t.date,
+      t.type === 'income' ? 'Income' : 'Expense',
+      `"${isTransfer ? 'Transfer' : (catMap.get(t.categoryId || '') || '')}"`,
+      `"${walletMap.get(t.walletId) || ''}"`,
+      t.amount,
+      `"${(t.notes || '').replace(/"/g, '""')}"`,
+    ];
+  });
 
   const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
