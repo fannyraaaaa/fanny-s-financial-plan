@@ -157,7 +157,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
 
         <button
-          onClick={onOpenTransfer}
+          onClick={() => {
+            if (!isUnlocked) {
+              openPasswordModal();
+              return;
+            }
+            onOpenTransfer();
+          }}
           className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-blue-400 hover:shadow-xs transition-all flex flex-col items-center gap-1.5 group text-center"
         >
           <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -167,7 +173,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </button>
 
         <button
-          onClick={() => onOpenReconciliation()}
+          onClick={() => {
+            if (!isUnlocked) {
+              openPasswordModal();
+              return;
+            }
+            onOpenReconciliation();
+          }}
           className="p-3 rounded-2xl bg-white border border-[#F8E9E4] shadow-2xs hover:border-[#CB497C] hover:shadow-xs transition-all flex flex-col items-center gap-1.5 group text-center"
         >
           <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -185,7 +197,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-[11px] text-[#A93361]">Balances and payment methods</p>
           </div>
           <button
-            onClick={() => onNavigateTab('wallets')}
+            onClick={() => {
+              if (isUnlocked) {
+                onNavigateTab('wallets');
+              } else {
+                openPasswordModal();
+              }
+            }}
             className="text-xs font-bold text-[#CB497C] hover:underline flex items-center gap-0.5"
           >
             <span>Manage All</span>
@@ -233,7 +251,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           ))}
 
           <button
-            onClick={onOpenWalletModal}
+            onClick={() => {
+              if (!isUnlocked) {
+                openPasswordModal();
+                return;
+              }
+              onOpenWalletModal();
+            }}
             className="p-3.5 rounded-2xl border border-dashed border-[#F3AEC5] bg-white/50 hover:bg-white text-[#CB497C] flex flex-col items-center justify-center gap-1.5 transition-all"
           >
             <div className="w-8 h-8 rounded-full bg-[#FAF4F2] flex items-center justify-center text-[#CB497C]">
@@ -286,13 +310,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         </span>
                       </div>
                     </div>
-                    <span className="text-xs font-bold font-mono text-[#CB497C]">{progress}%</span>
+                    <span className="text-xs font-bold font-mono text-[#CB497C]">{isUnlocked ? `${progress}%` : '••%'}</span>
                   </div>
 
                   <div className="w-full bg-[#FAF4F2] h-2 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${progress}%`, backgroundColor: goal.color }}
+                      style={{ width: isUnlocked ? `${progress}%` : '0%', backgroundColor: goal.color }}
                     />
                   </div>
 
@@ -301,7 +325,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {isUnlocked ? formatIDR(goal.currentAmount) : '••••••••'}
                     </span>
                     <button
-                      onClick={() => onOpenDepositGoal(goal.id)}
+                      onClick={() => {
+                        if (!isUnlocked) {
+                          openPasswordModal();
+                          return;
+                        }
+                        onOpenDepositGoal(goal.id);
+                      }}
                       className="text-xs font-bold text-[#CB497C] bg-[#FAF4F2] hover:bg-[#F8E9E4] px-2.5 py-1 rounded-lg transition-colors"
                     >
                       + Save
@@ -344,7 +374,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div>
               <h4 className="text-xs font-bold text-[#390F1E]">Transaction Records Protected</h4>
               <p className="text-[11px] text-[#A93361] max-w-xs mx-auto mt-0.5 font-medium">
-                Tap to unlock & enter password
+                Dilindungi dengan password
               </p>
             </div>
             <button
@@ -356,7 +386,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] text-white font-bold text-xs inline-flex items-center gap-1.5 shadow-sm group-hover:opacity-95 transition-all"
             >
               <Lock size={13} />
-              <span>Tap to Unlock</span>
+              <span>Unlock</span>
             </button>
           </div>
         ) : (
