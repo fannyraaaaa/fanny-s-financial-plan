@@ -125,6 +125,26 @@ const STORAGE_KEYS = {
 const DEFAULT_VAULT_PASSWORD = 'fanny123';
 const WORKSPACE_DOC_ID = 'fanny_vault';
 
+export const isTransferTransaction = (t: Partial<Transaction>): boolean => {
+  if (t.isTransfer) return true;
+  if (t.id?.startsWith('tx-tr-')) return true;
+  if (t.notes?.startsWith('Transfer to ') || t.notes?.startsWith('Transfer from ')) return true;
+  return false;
+};
+
+export const cleanTransactions = (txs: Transaction[]): Transaction[] => {
+  return txs.map(tx => {
+    if (isTransferTransaction(tx)) {
+      return {
+        ...tx,
+        isTransfer: true,
+        categoryId: '',
+      };
+    }
+    return tx;
+  });
+};
+
 export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Vault Security State
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
@@ -147,7 +167,8 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-    return saved ? JSON.parse(saved) : INITIAL_TRANSACTIONS;
+    const parsed = saved ? JSON.parse(saved) : INITIAL_TRANSACTIONS;
+    return cleanTransactions(parsed);
   });
 
   const [transfers, setTransfers] = useState<WalletTransfer[]>(() => {
@@ -272,7 +293,16 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
               if (Array.isArray(data.wallets)) setWallets(data.wallets);
               if (Array.isArray(data.categories)) setCategories(data.categories);
-              if (Array.isArray(data.transactions)) setTransactions(data.transactions);
+              if (Array.isArray(data.transactions)) {
+                const cleaned = cleanTransactions(data.transactions);
+                setTransactions(cleaned);
+                const hadDirty = data.transactions.some(
+                  (t: any) => isTransferTransaction(t) && t.categoryId
+                );
+                if (hadDirty) {
+                  saveToFirestore({ transactions: cleaned });
+                }
+              }
               if (Array.isArray(data.transfers)) setTransfers(data.transfers);
               if (Array.isArray(data.recurring)) setRecurring(data.recurring);
               if (Array.isArray(data.savingsGoals)) setSavingsGoals(data.savingsGoals);
@@ -454,14 +484,15 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       return w;
     });
 
-    // Record as two clean transactions
+    // Record as two clean transactions without any category (notes only)
     const expenseTx: Transaction = {
       id: `tx-tr-out-${Date.now()}`,
       type: 'expense',
       amount: amount + adminFee,
       date,
       walletId: fromWalletId,
-      categoryId: 'cat-exp-bills',
+      categoryId: '',
+      isTransfer: true,
       notes: `Transfer to ${toWallet?.name || 'Another wallet'}${adminFee > 0 ? ` (Admin fee Rp ${adminFee.toLocaleString('en-US')})` : ''}${notes ? `: ${notes}` : ''}`,
       createdAt: Date.now(),
     };
@@ -472,7 +503,8 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       amount: amount,
       date,
       walletId: toWalletId,
-      categoryId: 'cat-inc-salary',
+      categoryId: '',
+      isTransfer: true,
       notes: `Transfer from ${fromWallet?.name || 'Another wallet'}${notes ? `: ${notes}` : ''}`,
       createdAt: Date.now() + 1,
     };
@@ -802,11 +834,11 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   const thisMonthTransactions = transactions.filter(t => t.date.startsWith(currentMonthPrefix));
 
   const monthlyIncome = thisMonthTransactions
-    .filter(t => t.type === 'income')
+    .filter(t => t.type === 'income' && !isTransferTransaction(t))
     .reduce((acc, t) => acc + t.amount, 0);
 
   const monthlyExpense = thisMonthTransactions
-    .filter(t => t.type === 'expense')
+    .filter(t => t.type === 'expense' && !isTransferTransaction(t))
     .reduce((acc, t) => acc + t.amount, 0);
 
   const monthlyNetFlow = monthlyIncome - monthlyExpense;
