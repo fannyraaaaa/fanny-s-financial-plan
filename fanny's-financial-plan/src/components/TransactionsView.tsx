@@ -56,7 +56,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   const [subTab, setSubTab] = useState<'transactions' | 'recurring'>('transactions');
 
   // Filter state for transactions
-  const [activeFilter, setActiveFilter] = useState<'all' | 'expense' | 'income' | 'reconciliation'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'expense' | 'income' | 'transfer' | 'reconciliation'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWalletId, setSelectedWalletId] = useState('all');
 
@@ -186,18 +186,30 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
 
   // UNLOCKED VIEW: Full Transactions & Auto Recurring
   const filteredTransactions = transactions.filter(tx => {
-    if (activeFilter === 'expense' && tx.type !== 'expense') return false;
-    if (activeFilter === 'income' && tx.type !== 'income') return false;
+    const isTransfer =
+      tx.isTransfer ||
+      tx.id?.startsWith('tx-tr-') ||
+      tx.notes?.startsWith('Transfer to ') ||
+      tx.notes?.startsWith('Transfer from ');
+
+    if (activeFilter === 'expense' && (tx.type !== 'expense' || isTransfer)) return false;
+    if (activeFilter === 'income' && (tx.type !== 'income' || isTransfer)) return false;
+    if (activeFilter === 'transfer' && !isTransfer) return false;
     if (activeFilter === 'reconciliation' && !tx.isReconciliation) return false;
 
     if (selectedWalletId !== 'all' && tx.walletId !== selectedWalletId) return false;
 
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
-      const catName = (catMap.get(tx.categoryId)?.name || '').toLowerCase();
+      const catName = (catMap.get(tx.categoryId || '')?.name || '').toLowerCase();
       const walName = (walletMap.get(tx.walletId)?.name || '').toLowerCase();
       const notes = (tx.notes || '').toLowerCase();
-      return catName.includes(q) || walName.includes(q) || notes.includes(q) || tx.date.includes(q);
+      return (
+        (!isTransfer && catName.includes(q)) ||
+        walName.includes(q) ||
+        notes.includes(q) ||
+        tx.date.includes(q)
+      );
     }
 
     return true;
@@ -274,6 +286,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
               { id: 'all', label: 'All' },
               { id: 'expense', label: '💸 Expense' },
               { id: 'income', label: '💰 Income' },
+              { id: 'transfer', label: '🔄 Transfer' },
               { id: 'reconciliation', label: '⚖️ Reconciliation' },
             ].map(tab => (
               <button
@@ -331,7 +344,12 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
               </div>
             ) : (
               filteredTransactions.map(tx => {
-                const cat = catMap.get(tx.categoryId);
+                const isTransfer =
+                  tx.isTransfer ||
+                  tx.id?.startsWith('tx-tr-') ||
+                  tx.notes?.startsWith('Transfer to ') ||
+                  tx.notes?.startsWith('Transfer from ');
+                const cat = isTransfer ? null : catMap.get(tx.categoryId || '');
                 const wal = walletMap.get(tx.walletId);
                 return (
                   <div
@@ -341,13 +359,24 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                     <div className="flex items-center gap-3">
                       <div
                         className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-2xs"
-                        style={{ backgroundColor: cat?.color || '#CB497C' }}
+                        style={{ backgroundColor: isTransfer ? '#6D1B3E' : (cat?.color || '#CB497C') }}
                       >
-                        <IconRenderer name={cat?.icon || 'DollarSign'} size={18} />
+                        {isTransfer ? (
+                          <ArrowRightLeft size={18} />
+                        ) : (
+                          <IconRenderer name={cat?.icon || 'DollarSign'} size={18} />
+                        )}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <p className="text-xs font-bold text-[#390F1E]">{cat?.name || 'Transaction'}</p>
+                          <p className="text-xs font-bold text-[#390F1E]">
+                            {isTransfer ? (tx.notes || 'Transfer Antar Wallet') : (cat?.name || 'Transaction')}
+                          </p>
+                          {isTransfer && (
+                            <span className="text-[9px] font-bold text-[#6D1B3E] bg-[#FAF4F2] border border-[#F3AEC5]/50 px-1.5 py-0.2 rounded-full">
+                              Transfer
+                            </span>
+                          )}
                           {tx.isReconciliation && (
                             <span className="text-[9px] font-bold text-[#6D1B3E] bg-[#F8E9E4] px-1.5 py-0.2 rounded-full">
                               Bank Reconciliation
@@ -359,7 +388,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
                           <span>·</span>
                           <span>{formatDateIndo(tx.date)}</span>
                         </div>
-                        {tx.notes && (
+                        {!isTransfer && tx.notes && (
                           <p className="text-[11px] text-slate-600 mt-1 line-clamp-1 italic">
                             "{tx.notes}"
                           </p>
