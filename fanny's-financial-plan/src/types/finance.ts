@@ -30,9 +30,11 @@ export interface Transaction {
   amount: number;
   date: string; // YYYY-MM-DD
   walletId: string;
-  categoryId: string;
+  categoryId?: string;
   notes: string;
   isReconciliation?: boolean;
+  isTransfer?: boolean;
+  transferId?: string;
   recurringId?: string;
   createdAt: number;
 }
