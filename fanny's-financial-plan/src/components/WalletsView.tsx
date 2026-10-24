@@ -32,10 +32,10 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
                 type="button"
                 onClick={openPasswordModal}
                 className="px-2.5 py-1 rounded-full bg-[#FAF4F2] hover:bg-[#F8E9E4] text-[#6D1B3E] text-[10px] font-bold flex items-center gap-1 border border-[#F3AEC5]/50 transition-colors cursor-pointer shadow-2xs active:scale-95"
-                title="Tap to unlock"
+                title="Locked - Tap to enter password"
               >
                 <Lock size={11} className="text-[#CB497C]" />
-                <span>Tap to unlock</span>
+                <span>Locked</span>
               </button>
             )}
           </div>
@@ -58,15 +58,29 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
             <span>Reconcile</span>
           </button>
           <button
-            onClick={onOpenTransfer}
+            onClick={() => {
+              if (!isUnlocked) {
+                openPasswordModal();
+                return;
+              }
+              onOpenTransfer();
+            }}
             className="px-3 py-2 rounded-xl bg-white border border-[#F3AEC5] text-[#6D1B3E] font-semibold text-xs flex items-center gap-1 shadow-2xs hover:bg-[#FAF4F2]"
+            title={!isUnlocked ? "Masukkan password untuk transfer" : "Transfer"}
           >
             <ArrowRightLeft size={14} />
             <span>Transfer</span>
           </button>
           <button
-            onClick={() => onOpenWalletModal()}
+            onClick={() => {
+              if (!isUnlocked) {
+                openPasswordModal();
+                return;
+              }
+              onOpenWalletModal();
+            }}
             className="px-3.5 py-2 rounded-xl bg-[#CB497C] hover:bg-[#A93361] text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all"
+            title={!isUnlocked ? "Masukkan password untuk tambah dompet" : "Add Wallet"}
           >
             <Plus size={16} />
             <span>Add</span>
@@ -86,8 +100,15 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
           </div>
         </div>
         <button
-          onClick={() => onOpenReconciliation()}
+          onClick={() => {
+            if (!isUnlocked) {
+              openPasswordModal();
+              return;
+            }
+            onOpenReconciliation();
+          }}
           className="px-3.5 py-1.5 rounded-xl bg-[#6D1B3E] text-white text-xs font-bold hover:bg-[#390F1E] transition-colors shrink-0"
+          title={!isUnlocked ? "Masukkan password untuk rekonsiliasi" : "Match Balance"}
         >
           Match Balance
         </button>
@@ -106,7 +127,13 @@ export const WalletsView: React.FC<WalletsViewProps> = ({
             </p>
           </div>
           <button
-            onClick={() => onOpenWalletModal()}
+            onClick={() => {
+              if (!isUnlocked) {
+                openPasswordModal();
+                return;
+              }
+              onOpenWalletModal();
+            }}
             className="px-4 py-2 text-xs font-bold text-white bg-[#CB497C] hover:bg-[#A93361] rounded-xl transition-all shadow-xs"
           >
             + Add First Wallet
