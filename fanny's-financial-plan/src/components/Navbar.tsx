@@ -148,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 else openPasswordModal();
               }}
               className="px-3.5 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] hover:opacity-95 rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 shrink-0"
-              title="Tap to unlock / enter password"
+              title="Unlock vault"
             >
               <Lock size={14} className="animate-pulse" />
               <span>Unlock</span>
