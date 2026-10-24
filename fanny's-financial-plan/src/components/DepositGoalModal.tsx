@@ -92,7 +92,7 @@ export const DepositGoalModal: React.FC<DepositGoalModalProps> = ({
             <div className="w-full bg-[#F8E9E4] h-2 rounded-full overflow-hidden">
               <div
                 className="h-full bg-[#CB497C] rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100))}%` }}
+                style={{ width: isUnlocked ? `${Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100))}%` : '0%' }}
               />
             </div>
             <p className="text-[11px] text-[#A93361] text-right font-medium">
