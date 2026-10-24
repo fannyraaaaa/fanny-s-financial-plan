@@ -75,12 +75,11 @@ export const SpreadsheetView: React.FC = () => {
     if (activeTab === 'transactions') {
       tsv = ['No\tDate\tType\tCategory\tWallet\tAmount\tNotes'].join('\n') + '\n';
       tsv += transactions
-        .map(
-          (t, i) =>
-            `${i + 1}\t${t.date}\t${t.type === 'income' ? 'Income' : 'Expense'}\t${
-              catMap.get(t.categoryId) || ''
-            }\t${walletMap.get(t.walletId) || ''}\t${t.amount}\t${t.notes || ''}`
-        )
+        .map((t, i) => {
+          const isTr = t.isTransfer || t.id?.startsWith('tx-tr-') || t.notes?.startsWith('Transfer to ') || t.notes?.startsWith('Transfer from ');
+          const catName = isTr ? 'Transfer' : (catMap.get(t.categoryId || '') || '-');
+          return `${i + 1}\t${t.date}\t${t.type === 'income' ? 'Income' : 'Expense'}\t${catName}\t${walletMap.get(t.walletId) || ''}\t${t.amount}\t${t.notes || ''}`;
+        })
         .join('\n');
     } else if (activeTab === 'wallets') {
       tsv = ['No\tWallet Name\tCategory\tBalance\tLast Reconciled'].join('\n') + '\n';
@@ -259,7 +258,8 @@ export const SpreadsheetView: React.FC = () => {
                   transactions
                     .filter(t => {
                       if (!searchTerm) return true;
-                      const cat = catMap.get(t.categoryId) || '';
+                      const isTr = t.isTransfer || t.id?.startsWith('tx-tr-') || t.notes?.startsWith('Transfer to ') || t.notes?.startsWith('Transfer from ');
+                      const cat = isTr ? 'Transfer' : (catMap.get(t.categoryId || '') || '');
                       const wal = walletMap.get(t.walletId) || '';
                       return (
                         cat.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -288,7 +288,9 @@ export const SpreadsheetView: React.FC = () => {
                           </span>
                         </td>
                         <td className="py-2.5 px-3 text-[#390F1E] font-medium whitespace-nowrap">
-                          {catMap.get(t.categoryId) || '-'}
+                          {t.isTransfer || t.id?.startsWith('tx-tr-') || t.notes?.startsWith('Transfer to ') || t.notes?.startsWith('Transfer from ')
+                            ? 'Transfer'
+                            : (catMap.get(t.categoryId || '') || '-')}
                         </td>
                         <td className="py-2.5 px-3 text-[#6D1B3E] whitespace-nowrap">
                           {walletMap.get(t.walletId) || '-'}
