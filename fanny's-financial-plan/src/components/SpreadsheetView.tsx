@@ -5,7 +5,6 @@ import {
   Copy,
   Check,
   Search,
-  RotateCcw,
   ArrowDownToLine,
   Scale,
   Lock,
@@ -24,7 +23,6 @@ export const SpreadsheetView: React.FC = () => {
     recurring,
     savingsGoals,
     reconciliationLogs,
-    resetToDefault,
     totalNetWorth,
     monthlyIncome,
     monthlyExpense,
@@ -133,7 +131,7 @@ export const SpreadsheetView: React.FC = () => {
               className="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#6D1B3E] to-[#CB497C] hover:opacity-95 shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
             >
               <Lock size={15} />
-              <span>Tap to Unlock / Masukkan Password</span>
+              <span>Unlock</span>
             </button>
           </div>
         </div>
@@ -174,17 +172,6 @@ export const SpreadsheetView: React.FC = () => {
             >
               {copied ? <Check size={14} className="text-emerald-300" /> : <Copy size={14} />}
               <span>{copied ? 'Copied to Clipboard!' : 'Copy to Google Sheets'}</span>
-            </button>
-            <button
-              onClick={() => {
-                if (window.confirm('Reset database back to initial state?')) {
-                  resetToDefault();
-                }
-              }}
-              className="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-red-500/30 text-white/80 hover:text-white text-xs transition-colors"
-              title="Reset Database"
-            >
-              <RotateCcw size={14} />
             </button>
           </div>
         </div>
